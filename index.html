@@ -226,8 +226,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
       <p class="muted small" style="margin-top:0">Schreibe einen Text innerhalb einer Zeit ab. Korrigieren ist erlaubt (Rücktaste, Entf, Pfeiltasten, Maus). Gewertet wird nur, ob der Text am Ende stimmt. Fehler werden pro Wort gezählt.</p>
       <div class="row">
         <label class="small">Text <select id="cSrc"><option value="gen">Zufälliger Fließtext</option><option value="own">Eigener Text (Feld oben)</option></select></label>
-        <label class="small">Länge <select id="cLen"><option value="300">kurz (~300 Zeichen)</option><option value="700">mittel (~700 Zeichen)</option><option value="1500">lang (~1500 Zeichen)</option></select></label>
-        <label class="small">Zeit <select id="cTime"><option value="1">1 Minute</option><option value="3">3 Minuten</option><option value="5">5 Minuten</option><option value="10">10 Minuten</option><option value="0">ohne Limit</option></select></label>
+        <label class="small">Länge <select id="cLen"></select></label>
+        <label class="small">Zeit <select id="cTime"></select></label>
         <label class="small">Fehleranzeige <select id="cLive"><option value="1">sofort beim Tippen (Übung)</option><option value="0">erst am Ende (Prüfung)</option></select></label>
       </div>
       <div class="row" style="margin-top:10px"><button id="cStart" class="btn primary">Abschrift starten</button></div>
@@ -1080,7 +1080,20 @@ $('#pickStart').onclick = startPick;
 /* ---------- Abschrift mit Korrektur ---------- */
 let C = null;
 const cInput = $('#cInput'), cSrcBox = $('#cSrcBox');
-function copyText(len) { const s = sentenceSource(), out = []; let n = 0; while (n < len) { const x = s(); out.push(x); n += x.length + 1; } return out.join(' '); }
+// Auswahllisten: Länge in 100er-Schritten, Zeit in Minuten-Schritten
+$('#cLen').innerHTML = Array.from({length:30}, (_, i) => (i + 1) * 100).map(n => `<option value="${n}">${num(n)} Zeichen</option>`).join('');
+$('#cTime').innerHTML = Array.from({length:15}, (_, i) => i + 1).map(m => `<option value="${m}">${m} ${m === 1 ? 'Minute' : 'Minuten'}</option>`).join('') + '<option value="0">ohne Limit</option>';
+// Text aus ganzen Sätzen, möglichst nah an der gewünschten Länge
+function copyText(len) {
+  const s = sentenceSource(), out = []; let n = 0, guard = 0;
+  while (n < len && guard++ < 500) {
+    let x = s();
+    // Würde der Satz deutlich überschießen, nach einem passenderen suchen
+    for (let k = 0; k < 40 && n > 0 && n + x.length + 1 > len + 15; k++) x = s();
+    out.push(x); n += x.length + 1;
+  }
+  return out.join(' ');
+}
 function setupCopy() {
   const st = data.settings;
   $('#cSrc').value = st.cSrc; $('#cLen').value = st.cLen; $('#cTime').value = st.cTime; $('#cLive').value = st.cLive ? '1' : '0';
@@ -1107,7 +1120,7 @@ function startCopy(text) {
   cInput.value = ''; cInput.readOnly = false;
   $('#cTimeL').textContent = C.limit ? 'Restzeit' : 'Zeit';
   $('#cTitle').textContent = C.live ? 'Abschrift mit Korrektur' : 'Abschrift – Prüfungsmodus';
-  $('#cSub').textContent = C.live ? 'Korrigieren ist erlaubt. Gewertet wird nur der Text am Ende.' : 'Fehler werden erst nach der Abgabe angezeigt. Korrigieren ist erlaubt.';
+  $('#cSub').textContent = `${num([...text].length)} Zeichen · ${C.limit ? data.settings.cTime + ' Min.' : 'ohne Zeitlimit'} · ` + (C.live ? 'Korrigieren ist erlaubt. Gewertet wird nur der Text am Ende.' : 'Fehler werden erst nach der Abgabe angezeigt. Korrigieren ist erlaubt.');
   $('#cmCpmL').textContent = C.live ? 'Korrekte A/min' : 'Anschläge/Min.';
   show('copy'); applySettings(); copyUpdate(); cSrcBox.scrollTop = 0;
   cInput.focus();
