@@ -1,0 +1,1411 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tastomat 3000 – Schreibtrainer</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#f5f4f0;--panel:#fff;--text:#1c1c1e;--muted:#6e6e73;--line:#e3e1db;
+  --accent:#2f6fde;--accent-ink:#fff;--ok:#15803d;--err:#c81e1e;--errbg:#fde2e2;
+  --cur:#ffe08a;--keybg:#fbfbfa;--keyline:#cfccc4;--done:#9a9aa0;
+  --fLp:#f6b3cf;--fLr:#f9c58d;--fLm:#f6e27a;--fLi:#a6e3a1;--fRi:#9fd4f5;--fRm:#f6e27a;--fRr:#f9c58d;--fRp:#f6b3cf;--fT:#d9d6ee;
+  --fs:26px;--power:#e8590c;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16171a;--panel:#1f2024;--text:#ececef;--muted:#9a9aa3;--line:#2f3036;
+  --accent:#6b9cff;--accent-ink:#0b1020;--ok:#4ade80;--err:#f87171;--errbg:#4a1d1d;
+  --cur:#5a4a12;--power:#ff7a2e;--keybg:#26272c;--keyline:#3a3b42;--done:#6a6a72;
+  --fLp:#6b3550;--fLr:#6b4524;--fLm:#5f5420;--fLi:#2f5a33;--fRi:#24506b;--fRm:#5f5420;--fRr:#6b4524;--fRp:#6b3550;--fT:#3b3953;
+}}
+:root[data-theme="dark"]{
+  --bg:#16171a;--panel:#1f2024;--text:#ececef;--muted:#9a9aa3;--line:#2f3036;
+  --accent:#6b9cff;--accent-ink:#0b1020;--ok:#4ade80;--err:#f87171;--errbg:#4a1d1d;
+  --cur:#5a4a12;--power:#ff7a2e;--keybg:#26272c;--keyline:#3a3b42;--done:#6a6a72;
+  --fLp:#6b3550;--fLr:#6b4524;--fLm:#5f5420;--fLi:#2f5a33;--fRi:#24506b;--fRm:#5f5420;--fRr:#6b4524;--fRp:#6b3550;--fT:#3b3953;
+}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{font-weight:900;font-size:20px;letter-spacing:-.3px;font-style:italic;text-transform:uppercase}
+.brand .num{display:inline-block;margin-left:6px;padding:1px 7px 2px;border-radius:5px;background:var(--power);color:#fff;font-style:italic;font-weight:900;transform:skew(-8deg);box-shadow:2px 2px 0 var(--text)}
+.brand .tag{font-size:12px;color:var(--muted);font-style:italic}
+@media (max-width:640px){.brand .tag{display:none}}
+.grunt{color:var(--power);font-weight:800;font-style:italic}
+nav{display:flex;gap:4px}
+nav button{border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:8px;font:inherit;cursor:pointer}
+nav button.active{background:var(--bg);color:var(--text);font-weight:600}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+h2{font-size:17px;margin:26px 0 10px}
+h2:first-child{margin-top:4px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card .cn{font-size:12px;color:var(--muted)}
+.card .ct{font-weight:600;margin:2px 0}
+.card .ck{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--muted)}
+.card .cb{font-size:12px;margin-top:6px;color:var(--ok)}
+.card .cb.none{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--text);font:15px/1.5 inherit;resize:vertical}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:7px 14px;border-radius:8px;font:inherit;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--err)}
+/* Training */
+.trainhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.ttitle{font-size:18px;font-weight:700}
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.meter{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.meter .l{font-size:12px;color:var(--muted)}
+.meter .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.progress{height:5px;background:var(--line);border-radius:3px;margin-top:10px;overflow:hidden}
+.progress div{height:100%;width:0;background:var(--accent);transition:width .25s}
+.textwrap{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 22px;margin:12px 0 6px;cursor:text}
+.textwrap.blur .textbox{opacity:.35;filter:blur(1px)}
+.textbox{font:500 var(--fs)/1.6 ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",Menlo,monospace;height:calc(var(--fs)*1.6*3);overflow:hidden;white-space:break-spaces;overflow-wrap:break-word;position:relative}
+.ch{border-radius:3px}
+.ch.ok{color:var(--done)}
+.ch.fix{color:var(--err);opacity:.65}
+.ch.err{color:var(--err);background:var(--errbg)}
+.ch.cur{background:var(--cur);box-shadow:inset 0 -3px 0 var(--accent)}
+.ch.cur.wrong{background:var(--errbg);box-shadow:inset 0 -3px 0 var(--err)}
+#hid{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.status{font-size:13px;color:var(--muted);min-height:20px}
+.status b{color:var(--text)}
+.hint{text-align:center;margin:8px 0 10px;min-height:22px;color:var(--muted)}
+.hint b{color:var(--text)}
+/* Keyboard */
+.kb{display:flex;flex-direction:column;gap:5px;max-width:880px;margin:0 auto;user-select:none}
+.kr{display:flex;gap:5px}
+.k{flex:var(--w,1) 1 0;min-width:0;height:44px;border:1px solid var(--keyline);border-radius:7px;background:var(--keybg);position:relative;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text);transition:transform .08s,box-shadow .08s,background .1s}
+.kb.colors .k[data-f]{background:var(--fc)}
+.k .t{position:absolute;top:2px;left:6px;font-size:11px;color:var(--muted)}
+.kb.colors .k .t,.kb.colors .k .a{color:inherit;opacity:.65}
+.k .a{position:absolute;bottom:2px;right:5px;font-size:10px;color:var(--muted)}
+.k .r{position:absolute;bottom:2px;left:5px;font-size:10px;font-weight:600}
+.k.home::after{content:"";position:absolute;bottom:6px;width:10px;height:2px;background:currentColor;border-radius:2px;opacity:.55}
+.k.hl{outline:3px solid var(--accent);outline-offset:1px;transform:translateY(-2px);box-shadow:0 5px 12px rgba(0,0,0,.18);font-weight:700;z-index:1}
+.k.bad{background:var(--err)!important;color:#fff}
+.legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+/* Result & stats */
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.big .meter .v{font-size:28px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--errbg);color:var(--err);border-radius:999px;padding:3px 10px;font-size:13px;font-family:ui-monospace,Consolas,monospace}
+.chip.good{background:var(--panel);color:var(--muted);border:1px solid var(--line)}
+.best{color:var(--ok);font-weight:600}
+canvas{width:100%;height:240px;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:12px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.set{display:grid;grid-template-columns:220px 1fr;gap:12px 16px;align-items:center}
+select{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+.meter .s{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* Hilfe & Info */
+.doc details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:0 16px}
+.doc summary{cursor:pointer;font-weight:600;padding:12px 0;list-style-position:inside}
+.doc details[open] summary{border-bottom:1px solid var(--line);margin-bottom:6px}
+.doc details > *:last-child{margin-bottom:14px}
+.doc li{margin:4px 0}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:.92em}
+kbd{display:inline-block;min-width:1.6em;padding:0 5px;border:1px solid var(--keyline);border-bottom-width:2px;border-radius:5px;background:var(--keybg);font:600 12px/1.6 ui-monospace,Consolas,monospace;text-align:center}
+pre.license{white-space:pre-wrap;font:12.5px/1.5 ui-monospace,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;margin:0}
+footer a{color:var(--muted)}
+nav{flex-wrap:wrap}
+/* Kompakte Trainingsansicht: passt auch auf kleine Laptop-Bildschirme */
+body.training main{padding-top:10px;padding-bottom:10px}
+#v-train .ttitle{font-size:16px}
+#v-train .trainhead .btn{padding:4px 12px;font-size:14px}
+#v-train .meters{margin-top:8px;gap:8px}
+#v-train .meter{padding:4px 10px}
+#v-train .meter .l{font-size:11px}
+#v-train .meter .v{font-size:clamp(16px,2.6vh,22px);line-height:1.25}
+#v-train .meter .s{font-size:11px}
+#v-train .progress{margin-top:6px}
+#v-train .textwrap{padding:10px 18px;margin:8px 0 4px}
+#v-train .textbox{--tfs:min(var(--fs),3.6vh);font-size:var(--tfs);height:calc(var(--tfs)*1.6*3)}
+#v-train .status{min-height:18px;font-size:12px}
+#v-train .hint{margin:2px 0 6px;min-height:20px;font-size:14px}
+#v-train .k{height:clamp(26px,5.4vh,44px)}
+#v-train .legend{margin-top:6px;font-size:11px;gap:10px}
+@media (max-width:640px){
+  #v-train .meters{grid-template-columns:repeat(4,1fr);gap:4px}
+  #v-train .meter{padding:3px 6px}
+  #v-train .meter .s{display:none}
+  #v-train .legend{display:none}
+}
+/* Tastenauswahl */
+.kb.pick .k[data-pick]{cursor:pointer}
+.kb.pick .k[data-pick]:hover{border-color:var(--accent)}
+.kb.pick .k:not([data-pick]){opacity:.45}
+.kb.pick .k.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.kb.pick .k.sel .t,.kb.pick .k.sel .a{color:inherit;opacity:.75}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+/* Abschrift */
+.copysrc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:12px 0;font:500 calc(var(--fs)*.75)/1.65 ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",Menlo,monospace;max-height:calc(var(--fs)*.75*1.65*7 + 30px);overflow-y:auto;white-space:pre-wrap;overflow-wrap:break-word}
+#crDiff{max-height:none}
+.copyin{display:block;width:100%;min-height:calc(var(--fs)*.75*1.65*6 + 24px);font:500 calc(var(--fs)*.75)/1.65 ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",Menlo,monospace;padding:12px 18px;border-radius:14px;background:var(--panel);border:2px solid var(--line)}
+.copyin:focus{outline:none;border-color:var(--accent)}
+.copyin[readonly]{opacity:.7}
+.w{border-radius:3px}
+.w.ok{color:var(--done)}
+.w.err{color:var(--err);background:var(--errbg);text-decoration:underline wavy var(--err)}
+.w.cur{background:var(--cur)}
+.w.miss{color:var(--err);text-decoration:line-through}
+.w.ins{color:var(--err);background:var(--errbg);font-style:italic}
+.w.rest{color:var(--muted);opacity:.55}
+.w .typed{font-size:.8em;color:var(--err);margin-left:3px}
+.w .typed::before{content:"→ "}
+.legend i.lg-ok{background:var(--done)}.legend i.lg-err{background:var(--err)}.legend i.lg-miss{background:transparent;border:1px solid var(--err)}.legend i.lg-ins{background:var(--errbg)}.legend i.lg-rest{background:var(--line)}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
+@media (max-width:640px){
+  :root{--fs:20px}
+  .meters{grid-template-columns:repeat(2,1fr)}
+  .k{height:34px;font-size:11px}.k .t,.k .a{display:none}
+  .kr{gap:3px}.kb{gap:3px}
+  .set{grid-template-columns:1fr}
+  header{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">Tastomat<span class="num">3000</span></div><div class="tag">Mehr Power für zehn Finger!</div></div>
+  <nav>
+    <button data-nav="home" class="active">Training</button>
+    <button data-nav="stats">Statistik</button>
+    <button data-nav="settings">Einstellungen</button>
+    <button data-nav="help">Hilfe</button>
+    <button data-nav="info">Info</button>
+  </nav>
+</header>
+<main>
+  <!-- Übersicht -->
+  <section id="v-home" class="view">
+    <h2>Lektionen</h2>
+    <div id="lessonGrid" class="grid"></div>
+    <h2>Weitere Übungen</h2>
+    <div class="grid">
+      <button class="card" id="cardSmart">
+        <div class="cn">Adaptiv</div><div class="ct">Intelligentes Training</div>
+        <div class="ck">übt deine Problemtasten</div>
+      </button>
+    </div>
+    <h2>Eigene Tastenauswahl</h2>
+    <div class="panel">
+      <p class="muted small" style="margin-top:0">Klicke die Tasten an, die du üben willst, oder wähle ganze Reihen per Schnellauswahl. Ein zweiter Klick auf einen Reihen-Knopf wählt die Reihe wieder ab.</p>
+      <div class="row" id="pickRows"></div>
+      <div id="pickKb" class="kb pick" style="margin:14px auto"></div>
+      <div class="row">
+        <label class="small"><input type="checkbox" id="pickShift"> Mit Umschalttaste (Großbuchstaben und obere Zeichen wie ! " §)</label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="pickStart" class="btn primary">Auswahl üben</button>
+        <span class="muted small" id="pickInfo"></span>
+      </div>
+    </div>
+    <h2>Eigener Text</h2>
+    <div class="panel">
+      <textarea id="freeText" placeholder="Füge hier einen beliebigen Text ein, z. B. einen Zeitungsartikel oder deine eigenen Notizen …"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="freeStart" class="btn primary">Text üben</button>
+        <span class="muted small">Die Übung endet, wenn der Text vollständig getippt ist.</span>
+      </div>
+    </div>
+    <h2>Abschrift mit Korrektur</h2>
+    <div class="panel">
+      <p class="muted small" style="margin-top:0">Schreibe einen Text innerhalb einer Zeit ab. Korrigieren ist erlaubt (Rücktaste, Entf, Pfeiltasten, Maus). Gewertet wird nur, ob der Text am Ende stimmt. Fehler werden pro Wort gezählt.</p>
+      <div class="row">
+        <label class="small">Text <select id="cSrc"><option value="gen">Zufälliger Fließtext</option><option value="own">Eigener Text (Feld oben)</option></select></label>
+        <label class="small">Länge <select id="cLen"><option value="300">kurz (~300 Zeichen)</option><option value="700">mittel (~700 Zeichen)</option><option value="1500">lang (~1500 Zeichen)</option></select></label>
+        <label class="small">Zeit <select id="cTime"><option value="1">1 Minute</option><option value="3">3 Minuten</option><option value="5">5 Minuten</option><option value="10">10 Minuten</option><option value="0">ohne Limit</option></select></label>
+        <label class="small">Fehleranzeige <select id="cLive"><option value="1">sofort beim Tippen (Übung)</option><option value="0">erst am Ende (Prüfung)</option></select></label>
+      </div>
+      <div class="row" style="margin-top:10px"><button id="cStart" class="btn primary">Abschrift starten</button></div>
+    </div>
+    <footer>Tastomat 3000 – keine Anmeldung, kein Server: Alle Daten bleiben in diesem Browser. Sichere sie bei Bedarf unter „Einstellungen → Exportieren“.<br><a href="#" data-goto="help">Hilfe</a> · <a href="#" data-goto="info">Datenschutz &amp; Lizenz</a> · <a href="#" data-download>Offline-Datei herunterladen</a></footer>
+  </section>
+
+  <!-- Training -->
+  <section id="v-train" class="view" hidden>
+    <div class="trainhead">
+      <div><div class="ttitle" id="tTitle"></div><div class="muted small" id="tSub"></div></div>
+      <div class="row"><button id="tPause" class="btn">Pause (Esc)</button><button id="tStop" class="btn">Beenden</button></div>
+    </div>
+    <div class="meters">
+      <div class="meter"><div class="l" id="mTimeL">Zeit</div><div class="v" id="mTime">0:00</div></div>
+      <div class="meter"><div class="l">Anschläge/Min.</div><div class="v" id="mCpm">0</div></div>
+      <div class="meter"><div class="l">Fehler</div><div class="v" id="mErr">0</div></div>
+      <div class="meter"><div class="l">Fehlerquote</div><div class="v" id="mRate">0,0 %</div><div class="s" id="mRateAbs">0 von 0 Anschlägen</div></div>
+    </div>
+    <div class="progress"><div id="prog"></div></div>
+    <div class="textwrap" id="textWrap">
+      <div id="textBox" class="textbox"></div>
+      <input id="hid" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Eingabe">
+    </div>
+    <div class="status" id="status"></div>
+    <div class="hint" id="hint"></div>
+    <div id="kbWrap">
+      <div id="kb" class="kb"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <!-- Ergebnis -->
+  <section id="v-result" class="view" hidden>
+    <div class="ttitle" id="rTitle"></div>
+    <div id="rBest"></div>
+    <div class="big">
+      <div class="meter"><div class="l">Anschläge/Min.</div><div class="v" id="rCpm"></div></div>
+      <div class="meter"><div class="l">Wörter/Min. (≈)</div><div class="v" id="rWpm"></div></div>
+      <div class="meter"><div class="l">Fehlerquote</div><div class="v" id="rRate"></div><div class="s" id="rRateAbs"></div></div>
+      <div class="meter"><div class="l">Zeit</div><div class="v" id="rTime"></div></div>
+    </div>
+    <h2>Problemtasten dieser Übung</h2>
+    <div class="chips" id="rKeys"></div>
+    <div class="row" style="margin-top:22px">
+      <button id="rAgain" class="btn primary">Nochmal</button>
+      <button id="rNext" class="btn">Nächste Lektion</button>
+      <button id="rHome" class="btn">Zur Übersicht</button>
+    </div>
+  </section>
+
+  <!-- Abschrift -->
+  <section id="v-copy" class="view" hidden>
+    <div class="trainhead">
+      <div><div class="ttitle" id="cTitle">Abschrift mit Korrektur</div><div class="muted small" id="cSub">Korrigieren ist erlaubt. Gewertet wird nur der Text am Ende.</div></div>
+      <div class="row"><button id="cDone" class="btn primary">Abgeben (Strg+Enter)</button><button id="cCancel" class="btn">Abbrechen</button></div>
+    </div>
+    <div class="meters">
+      <div class="meter"><div class="l" id="cTimeL">Zeit</div><div class="v" id="cmTime">0:00</div></div>
+      <div class="meter"><div class="l" id="cmCpmL">Korrekte A/min</div><div class="v" id="cmCpm">0</div></div>
+      <div class="meter"><div class="l">Offene Fehler</div><div class="v" id="cmErr">–</div></div>
+      <div class="meter"><div class="l">Korrekturen</div><div class="v" id="cmFix">0</div></div>
+    </div>
+    <div class="progress"><div id="cProg"></div></div>
+    <div class="copysrc" id="cSrcBox"></div>
+    <textarea id="cInput" class="copyin" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Hier tippen … die Zeit startet mit dem ersten Anschlag."></textarea>
+  </section>
+
+  <!-- Abschrift-Ergebnis -->
+  <section id="v-copyres" class="view" hidden>
+    <div class="ttitle">Abschrift – Ergebnis</div>
+    <div id="crVerdict"></div>
+    <div class="big">
+      <div class="meter"><div class="l">Fehler im Endtext</div><div class="v" id="crErr"></div><div class="s" id="crErrAbs"></div></div>
+      <div class="meter"><div class="l">Korrekte A/min</div><div class="v" id="crCpm"></div></div>
+      <div class="meter"><div class="l">Geschafft</div><div class="v" id="crDone"></div></div>
+      <div class="meter"><div class="l">Zeit</div><div class="v" id="crTime"></div></div>
+      <div class="meter"><div class="l">Korrekturen</div><div class="v" id="crFix"></div></div>
+    </div>
+    <h2>Auswertung</h2>
+    <div class="copysrc" id="crDiff"></div>
+    <div class="legend"><span><i class="lg-ok"></i>richtig</span><span><i class="lg-err"></i>falsch (deine Eingabe dahinter)</span><span><i class="lg-miss"></i>fehlt</span><span><i class="lg-ins"></i>zu viel</span><span><i class="lg-rest"></i>nicht mehr geschafft</span></div>
+    <div class="row" style="margin-top:22px">
+      <button id="crAgain" class="btn primary">Gleicher Text nochmal</button>
+      <button id="crNew" class="btn">Neuer Text</button>
+      <button id="crHome" class="btn">Zur Übersicht</button>
+    </div>
+  </section>
+
+  <!-- Statistik -->
+  <section id="v-stats" class="view" hidden>
+    <h2>Überblick</h2>
+    <div class="big" id="sCards"></div>
+    <h2>Verlauf</h2>
+    <div class="panel"><canvas id="chart"></canvas>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Anschläge/Min.</span><span><i style="background:var(--err)"></i>Fehlerquote %</span></div>
+    </div>
+    <h2>Fehler pro Taste</h2>
+    <div class="panel">
+      <div id="heat" class="kb"></div>
+      <div class="legend"><span><i style="background:hsl(120,60%,60%)"></i>0 %</span><span><i style="background:hsl(60,70%,60%)"></i>5 %</span><span><i style="background:hsl(0,70%,60%)"></i>≥ 10 % Fehler</span><span><i style="background:var(--keybg);border:1px solid var(--keyline)"></i>zu wenig Daten</span></div>
+    </div>
+    <h2>Häufigste Fehler</h2>
+    <div class="chips" id="sTop"></div>
+    <h2>Letzte Übungen</h2>
+    <div class="panel" style="overflow-x:auto"><table id="sTable"></table></div>
+  </section>
+
+  <!-- Hilfe -->
+  <section id="v-help" class="view doc" hidden>
+    <h2>Hilfe</h2>
+    <p class="muted">Klicke auf ein Thema, um es aufzuklappen.</p>
+
+    <details open>
+      <summary>Schnellstart</summary>
+      <ol>
+        <li>Unter <b>Training</b> eine Lektion anklicken – am besten mit <b>Lektion 1: Grundreihe</b> beginnen.</li>
+        <li>Finger auf die Grundstellung legen: links <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd>, rechts <kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> <kbd>Ö</kbd>. Die Tasten <kbd>F</kbd> und <kbd>J</kbd> haben fühlbare Markierungen, die Daumen liegen auf der Leertaste.</li>
+        <li>Einfach lostippen – die Zeit startet mit dem ersten Anschlag.</li>
+        <li>Nicht auf die Tastatur schauen, sondern auf den Text und die Bildschirmtastatur. Lieber langsam und fehlerfrei als schnell und ungenau.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>Die Lektionen</summary>
+      <p>Die Lektionen 1–11 führen Schritt für Schritt alle Buchstaben ein. Jede Lektion bringt 2–3 neue Tasten und verwendet sonst nur Buchstaben, die du schon kennst:</p>
+      <p class="mono">1 Grundreihe (a s d f j k l ö) · 2 e i · 3 r u · 4 g h · 5 t z · 6 w o · 7 n v · 8 c m · 9 b p · 10 ä ü q · 11 y x ß</p>
+      <p>Die neuen Tasten kommen dabei gezielt häufiger vor – etwa zwei- bis dreimal so oft wie bei zufälliger Verteilung. Der Text besteht aus echten Wörtern und kurzen Fingerübungen und wird jedes Mal neu gemischt.</p>
+      <p>Danach folgen Sonderthemen: <b>12</b> Großbuchstaben, <b>13</b> Satzzeichen, <b>14</b> Ziffern (auch Datum und Uhrzeit), <b>15</b> Sonderzeichen wie ( ) " / % € @ und <b>16</b> Fließtext mit ganzen Sätzen.</p>
+      <p>Auf Wunsch taucht im Fließtext und in der Abschrift ab und zu ein bayrisches Sprichwort auf, etwa „Nur ned hudln!“. Das ist standardmäßig aus und lässt sich unter <b>Einstellungen → Bayrische Sprüche</b> einschalten.</p>
+      <p>Jede Lektion läuft so lange, wie unter <b>Einstellungen → Dauer einer Lektion</b> eingestellt ist (Standard: 5 Minuten). Auf der Lektionskarte siehst du deine Bestleistung.</p>
+    </details>
+
+    <details>
+      <summary>Während der Übung</summary>
+      <ul>
+        <li>Das aktuelle Zeichen ist gelb hinterlegt. Auf der Bildschirmtastatur ist die passende Taste umrandet – bei Großbuchstaben und Sonderzeichen auch die richtige Umschalttaste bzw. <kbd>Alt Gr</kbd>.</li>
+        <li>Unter dem Text steht, welcher Finger die Taste drückt. Die Farben der Bildschirmtastatur zeigen die Finger (abschaltbar unter Einstellungen).</li>
+        <li><b>Fehler:</b> Standardmäßig geht es erst weiter, wenn die richtige Taste gedrückt wurde. Unter <b>Einstellungen → Fehler müssen korrigiert werden</b> kannst du das abschalten; dann wird das Zeichen rot markiert und du tippst einfach weiter. Die Rücktaste ist in den Lektionen bewusst gesperrt.</li>
+        <li><kbd>Esc</kbd> pausiert. Nach 8 Sekunden ohne Eingabe pausiert die Übung automatisch – weitertippen setzt sie fort.</li>
+        <li><b>Beenden</b> bricht vorzeitig ab. Übungen unter 10 Sekunden werden nicht gespeichert.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Intelligentes Training</summary>
+      <p>Der Tastomat merkt sich für jedes Zeichen, wie oft du dich vertippst. Das intelligente Training wählt bevorzugt Wörter mit deinen fehleranfälligsten Zeichen und streut gezielte Fingerübungen dafür ein. Es wird umso genauer, je mehr du vorher geübt hast – mach also zuerst ein paar Lektionen.</p>
+    </details>
+
+    <details>
+      <summary>Eigene Tastenauswahl</summary>
+      <p>Hier stellst du dir selbst zusammen, welche Tasten geübt werden:</p>
+      <ul>
+        <li>Einzelne Tasten auf der Tastatur anklicken (nochmal klicken = abwählen).</li>
+        <li>Mit der <b>Schnellauswahl</b> ganze Reihen auf einmal wählen: Zahlenreihe, obere Reihe, Grundreihe, Grundstellung, untere Reihe oder alle Buchstaben. Ein zweiter Klick wählt die Reihe wieder ab. Beides lässt sich kombinieren.</li>
+        <li><b>Mit Umschalttaste</b> übt zusätzlich Großbuchstaben und die oberen Zeichen der gewählten Tasten (z. B. ! zur 1).</li>
+      </ul>
+      <p>Der Text besteht aus echten Wörtern, die nur deine Tasten brauchen, plus Fingerübungen. Deine Auswahl wird gespeichert.</p>
+    </details>
+
+    <details>
+      <summary>Eigener Text</summary>
+      <p>Füge einen beliebigen Text ein und tippe ihn ab – z. B. einen Zeitungsartikel, Vokabeln oder Fachbegriffe. Typografische Zeichen wie „ “ – … werden automatisch in Zeichen umgewandelt, die man direkt tippen kann. Der Text bleibt nur in deinem Browser.</p>
+    </details>
+
+    <details>
+      <summary>Abschrift mit Korrektur und Prüfungsmodus</summary>
+      <p>Wie bei einer Abschrift-Prüfung: Du schreibst einen Text innerhalb einer Zeit ab und darfst dabei frei korrigieren (Rücktaste, Entf, Pfeiltasten, Maus). <b>Gewertet wird nur der Text am Ende.</b> Einfügen per <kbd>Strg</kbd>+<kbd>V</kbd> ist gesperrt.</p>
+      <ul>
+        <li><b>Fehleranzeige „sofort“ (Übung):</b> Richtige Wörter werden grau, falsche rot markiert. Ist alles richtig, endet die Übung automatisch.</li>
+        <li><b>Fehleranzeige „erst am Ende“ (Prüfung):</b> Während des Schreibens wird nichts markiert. Die Prüfung endet erst bei Zeitablauf oder mit <b>Abgeben</b> (<kbd>Strg</kbd>+<kbd>Enter</kbd>).</li>
+      </ul>
+      <p>Fehler werden <b>pro Wort</b> gezählt: Drei Tippfehler in einem Wort sind ein Fehler. In der Auswertung siehst du falsche Wörter (mit deiner Eingabe dahinter), fehlende Wörter (durchgestrichen), überzählige Wörter und den nicht mehr geschafften Teil.</p>
+    </details>
+
+    <details>
+      <summary>Die Messwerte erklärt</summary>
+      <ul>
+        <li><b>Anschläge pro Minute (A/min):</b> korrekt getippte Zeichen pro Minute, Leerzeichen zählen mit.</li>
+        <li><b>Wörter pro Minute:</b> ungefähr A/min geteilt durch 5.</li>
+        <li><b>Fehlerquote:</b> Fehler geteilt durch alle Anschläge, z. B. „12 von 292 Anschlägen = 4,1 %“. Als Anschlag zählt jeder Tastendruck, auch falsche.</li>
+        <li><b>Abschrift:</b> Fehler pro getipptem Wort, z. B. „4 von 50 Wörtern“. „Korrekte A/min“ zählt nur Zeichen in richtig geschriebenen Wörtern.</li>
+      </ul>
+      <p>Grobe Orientierung: Unter 3 % Fehler ist gut, unter 1 % sehr gut. Erst genau, dann schnell werden.</p>
+    </details>
+
+    <details>
+      <summary>Statistik</summary>
+      <p>Unter <b>Statistik</b> findest du den Verlauf deiner Geschwindigkeit und Fehlerquote, eine Tastatur, auf der jede Taste nach ihrer Fehlerquote eingefärbt ist (grün = gut, rot = viele Fehler), deine häufigsten Fehler und eine Liste der letzten Übungen.</p>
+    </details>
+
+    <details>
+      <summary>Wo werden meine Daten gespeichert?</summary>
+      <p>Ausschließlich <b>in deinem Browser</b> auf deinem Gerät – nicht auf einem Server. Das heißt:</p>
+      <ul>
+        <li>Jeder Windows-Benutzer (bzw. jedes Browserprofil) hat seine eigene Statistik. Mehrere Personen können dieselbe Datei nutzen, ohne sich in die Quere zu kommen.</li>
+        <li>Chrome, Edge und Firefox speichern getrennt – nutze immer denselben Browser.</li>
+        <li>Öffne die Datei immer vom selben Ort. Wird sie verschoben, kann die Statistik je nach Browser „verschwinden“ (sie liegt dann unter dem alten Pfad).</li>
+        <li>Im Inkognito-Modus oder nach dem Löschen der Browserdaten ist die Statistik weg.</li>
+      </ul>
+      <p>Sichere deine Daten deshalb ab und zu unter <b>Einstellungen → Exportieren</b>. Mit <b>Importieren</b> holst du sie zurück – auch auf einem anderen PC oder Browser.</p>
+    </details>
+
+    <details>
+      <summary>Offline nutzen</summary>
+      <p>Der Tastomat 3000 ist eine einzige HTML-Datei ohne externe Abhängigkeiten. Lade sie herunter, speichere sie z. B. auf dem Desktop, einem USB-Stick oder einem Netzlaufwerk und öffne sie per Doppelklick – ganz ohne Internet.</p>
+      <p><button class="btn primary" data-download>Tastomat 3000 als Offline-Datei herunterladen</button></p>
+      <p class="muted small">Hinweis: Die Online-Version und die heruntergeladene Datei haben getrennte Statistiken. Übertrage sie bei Bedarf per Export/Import.</p>
+    </details>
+
+    <details>
+      <summary>Warum Tastomat 3000?</summary>
+      <ul>
+        <li><b>Keine Anmeldung, kein Konto, keine Werbung.</b> Öffnen und lostippen.</li>
+        <li><b>Läuft offline</b> als einzelne Datei – auf dem PC, vom USB-Stick oder im Schulnetz, ohne Installation und ohne Administratorrechte.</li>
+        <li><b>Für Deutsch gemacht:</b> QWERTZ-Tastatur mit Umlauten und ß, deutsche Wörter und Sätze, aufbauende Lektionen nach dem klassischen Zehnfingersystem.</li>
+        <li><b>Abschrift mit Korrektur und Prüfungsmodus</b> – wie in echten Schreibprüfungen wird erst am Ende ausgewertet.</li>
+        <li><b>Eigene Tastenauswahl</b> mit Reihen-Schnellauswahl und <b>intelligentes Training</b> für deine Problemtasten.</li>
+        <li><b>Datensparsam:</b> Alles bleibt auf deinem Gerät, getrennt pro Benutzer. Es werden keine externen Schriften, Skripte oder Tracker geladen.</li>
+        <li><b>Kostenlos und offen:</b> Der Quellcode steht unter der MIT-Lizenz.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Tastenkürzel und Tipps</summary>
+      <ul>
+        <li><kbd>Esc</kbd> – Lektion pausieren / fortsetzen</li>
+        <li><kbd>Strg</kbd>+<kbd>Enter</kbd> – Abschrift abgeben</li>
+        <li>Klick in den Text – Eingabe wieder aktivieren, falls der Fokus verloren ging</li>
+        <li>Die Tottasten <kbd>^</kbd> und <kbd>´</kbd> kommen in den Lektionen nicht vor. In eigenen Texten funktionieren Zeichen wie é trotzdem.</li>
+        <li>Ist die Schrift zu klein oder zu groß? <b>Einstellungen → Schriftgröße</b>. Auch ein dunkles Farbschema gibt es dort.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- Info -->
+  <section id="v-info" class="view doc" hidden>
+    <h2>Über den Tastomat 3000</h2>
+    <div class="panel">
+      <p style="margin-top:0"><b>Tastomat 3000</b> – Mehr Power für zehn Finger!<br>
+      <span class="muted">Version <span id="appVersion"></span> · Kostenloser Zehnfinger-Schreibtrainer ohne Anmeldung</span></p>
+      <p><button class="btn primary" data-download>Als Offline-Datei herunterladen</button></p>
+    </div>
+
+    <h2>Datenschutz</h2>
+    <div class="panel">
+      <p style="margin-top:0"><b>Kurz gesagt: Der Tastomat 3000 sammelt keine Daten.</b></p>
+      <ul>
+        <li>Alle Übungsergebnisse, Statistiken und Einstellungen werden ausschließlich lokal im Speicher deines Browsers (<span class="mono">localStorage</span>) auf deinem Gerät abgelegt. Sie werden nicht an den Betreiber oder Dritte übertragen.</li>
+        <li>Es gibt keine Benutzerkonten, keine Cookies, keine Analyse- oder Tracking-Werkzeuge und keine Werbung.</li>
+        <li>Es werden keine externen Inhalte geladen (keine Schriftarten, Skripte oder Bilder von fremden Servern).</li>
+        <li>Texte, die du unter „Eigener Text“ einfügst, bleiben in deinem Browser.</li>
+        <li>Mit <b>Einstellungen → Alle Daten löschen</b> entfernst du alle gespeicherten Daten. Alternativ löschst du die Websitedaten in deinem Browser.</li>
+      </ul>
+      <p><b>Online-Version:</b> Wenn du den Tastomat über eine Webadresse aufrufst (z. B. bei GitHub Pages), verarbeitet der Hosting-Anbieter beim Abruf technisch notwendige Daten wie deine IP-Adresse in Server-Protokollen. Darauf hat dieses Projekt keinen Einfluss. Details findest du in der Datenschutzerklärung des jeweiligen Anbieters (bei GitHub: <span class="mono">docs.github.com/site-policy/privacy-policies</span>). Die heruntergeladene Offline-Datei stellt keinerlei Verbindung ins Internet her.</p>
+    </div>
+
+    <h2>Lizenz</h2>
+    <div class="panel">
+      <p style="margin-top:0">Der Tastomat 3000 ist freie Software unter der <b>MIT-Lizenz</b>. Du darfst ihn kostenlos nutzen, kopieren, verändern und weitergeben – auch in Schulen und Unternehmen –, solange der folgende Lizenzhinweis erhalten bleibt.</p>
+      <pre class="license" id="licenseText"></pre>
+    </div>
+  </section>
+
+  <!-- Einstellungen -->
+  <section id="v-settings" class="view" hidden>
+    <h2>Übung</h2>
+    <div class="panel set">
+      <label for="oDur">Dauer einer Lektion</label>
+      <select id="oDur"><option value="1">1 Minute</option><option value="2">2 Minuten</option><option value="3">3 Minuten</option><option value="5">5 Minuten</option><option value="10">10 Minuten</option><option value="15">15 Minuten</option></select>
+      <label for="oBlock">Fehler müssen korrigiert werden</label>
+      <div><input type="checkbox" id="oBlock"> <span class="muted small">Bei einem Fehler geht es erst weiter, wenn die richtige Taste gedrückt wird.</span></div>
+      <label for="oBav">Bayrische Sprüche</label>
+      <div><input type="checkbox" id="oBav"> <span class="muted small">Mischt bayrische Sprichwörter und Redewendungen in den Fließtext (Lektion 16) und die Abschrift, z. B. „Nur ned hudln!“.</span></div>
+      <label for="oSound">Ton bei Fehlern</label>
+      <div><input type="checkbox" id="oSound"></div>
+    </div>
+    <h2>Darstellung</h2>
+    <div class="panel set">
+      <label for="oKb">Bildschirmtastatur anzeigen</label>
+      <div><input type="checkbox" id="oKb"></div>
+      <label for="oColors">Fingerfarben</label>
+      <div><input type="checkbox" id="oColors"></div>
+      <label for="oFs">Schriftgröße</label>
+      <select id="oFs"><option value="20">Klein</option><option value="26">Mittel</option><option value="32">Groß</option><option value="38">Sehr groß</option></select>
+      <label for="oTheme">Farbschema</label>
+      <select id="oTheme"><option value="auto">Wie System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>
+    </div>
+    <h2>Daten</h2>
+    <div class="panel">
+      <p class="muted small" style="margin-top:0">Deine Statistik wird nur in diesem Browser gespeichert. Wenn du Browserdaten löschst, ist sie weg. Exportiere sie deshalb ab und zu als Datei.</p>
+      <div class="row">
+        <button id="dExport" class="btn">Exportieren</button>
+        <button id="dImport" class="btn">Importieren</button>
+        <button id="dReset" class="btn danger">Alle Daten löschen</button>
+        <input type="file" id="dFile" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+/* ======= Hier anpassen ======= */
+const APP_VERSION = '1.0';
+const LICENSE_HOLDER = 'stefanpru (https://github.com/stefanpru)';
+const LICENSE_YEAR = '2026';
+/* ============================= */
+// Unveränderten Quelltext sichern, bevor das Skript die Seite verändert (für den Offline-Download).
+const PRISTINE = '<!doctype html>\n' + document.documentElement.outerHTML;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const rnd = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd(a.length)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt1 = n => n.toFixed(1).replace('.', ',');
+const num = n => Math.round(n).toLocaleString('de-DE');
+const errText = s => s.strokes ? `${num(s.errors)} / ${num(s.strokes)} Anschl. (${fmt1(s.rate)} %)`
+  : s.words ? `${num(s.errors)} / ${num(s.words)} Wörter (${fmt1(s.rate)} %)` : `${fmt1(s.rate)} %`;
+const mmss = s => { s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+
+/* ---------- Tastatur (deutsches QWERTZ) ---------- */
+// [normal, Umschalt, AltGr, Finger, Grundstellungsmarke]
+const KB = [
+ [['^','°',,'Lp'],['1','!',,'Lp'],['2','"','²','Lr'],['3','§','³','Lm'],['4','$',,'Li'],['5','%',,'Li'],['6','&',,'Li'],['7','/','{','Ri'],['8','(','[','Rm'],['9',')',']','Rr'],['0','=','}','Rp'],['ß','?','\\','Rp'],['´','`',,'Rp'],{id:'Backspace',label:'⌫',w:2}],
+ [{id:'Tab',label:'⇥',w:1.5},['q','Q','@','Lp'],['w','W',,'Lr'],['e','E','€','Lm'],['r','R',,'Li'],['t','T',,'Li'],['z','Z',,'Ri'],['u','U',,'Ri'],['i','I',,'Rm'],['o','O',,'Rr'],['p','P',,'Rp'],['ü','Ü',,'Rp'],['+','*','~','Rp'],{id:'Enter',label:'↵',w:1.5}],
+ [{id:'Caps',label:'⇪',w:1.75},['a','A',,'Lp'],['s','S',,'Lr'],['d','D',,'Lm'],['f','F',,'Li',1],['g','G',,'Li'],['h','H',,'Ri'],['j','J',,'Ri',1],['k','K',,'Rm'],['l','L',,'Rr'],['ö','Ö',,'Rp'],['ä','Ä',,'Rp'],['#',"'",,'Rp'],{id:'Enter2',label:'',w:1.25}],
+ [{id:'ShiftL',label:'⇧',w:1.25,f:'Lp'},['<','>','|','Lp'],['y','Y',,'Lp'],['x','X',,'Lr'],['c','C',,'Lm'],['v','V',,'Li'],['b','B',,'Li'],['n','N',,'Ri'],['m','M','µ','Ri'],[',',';',,'Rm'],['.',':',,'Rr'],['-','_',,'Rp'],{id:'ShiftR',label:'⇧',w:2.75,f:'Rp'}],
+ [{id:'Ctrl',label:'Strg',w:1.5},{id:'Win',label:'',w:1.25},{id:'Alt',label:'Alt',w:1.25},{id:'Space',label:'',w:6,f:'T'},{id:'AltGr',label:'Alt Gr',w:1.25,f:'T'},{id:'Win2',label:'',w:1.25},{id:'Menu',label:'',w:1},{id:'Ctrl2',label:'Strg',w:1.5}]
+];
+const FINGER = {Lp:'linker kleiner Finger',Lr:'linker Ringfinger',Lm:'linker Mittelfinger',Li:'linker Zeigefinger',T:'Daumen',Ri:'rechter Zeigefinger',Rm:'rechter Mittelfinger',Rr:'rechter Ringfinger',Rp:'rechter kleiner Finger'};
+const CHARMAP = {' ': {id:'Space', mod:'', f:'T'}};
+const KEYCHARS = {}; // id -> Zeichen auf dieser Taste
+for (const row of KB) for (const k of row) {
+  if (!Array.isArray(k)) continue;
+  const [b, s, a, f] = k, id = 'c:' + b;
+  KEYCHARS[id] = [b, s, a].filter(Boolean);
+  CHARMAP[b] = {id, mod:'', f};
+  if (s && !CHARMAP[s]) CHARMAP[s] = {id, mod:'shift', f};
+  if (a && !CHARMAP[a]) CHARMAP[a] = {id, mod:'altgr', f};
+}
+KEYCHARS.Space = [' '];
+
+function makeKB(el) {
+  el.innerHTML = '';
+  const els = {};
+  for (const row of KB) {
+    const r = document.createElement('div'); r.className = 'kr';
+    for (const k of row) {
+      const d = document.createElement('div'); d.className = 'k';
+      if (Array.isArray(k)) {
+        const [b, s, a, f, home] = k;
+        const letter = s === b.toUpperCase() && b !== s;
+        d.innerHTML = letter ? `<span>${esc(s)}</span>` : `<span class="t">${esc(s)}</span><span>${esc(b)}</span>`;
+        if (a) d.innerHTML += `<span class="a">${esc(a)}</span>`;
+        d.dataset.f = f; d.style.setProperty('--fc', `var(--f${f})`);
+        if (home) d.classList.add('home');
+        els['c:' + b] = d;
+      } else {
+        d.textContent = k.label; d.style.setProperty('--w', k.w);
+        if (k.f) { d.dataset.f = k.f; d.style.setProperty('--fc', `var(--f${k.f})`); }
+        els[k.id] = d;
+      }
+      r.appendChild(d);
+    }
+    el.appendChild(r);
+  }
+  return els;
+}
+
+/* ---------- Wortmaterial ---------- */
+const OTHER = `der die das und ist nicht ein eine einen sie er es wir ihr ich du mit auf für von zu den dem des im in an als auch aus bei bis da dass denn doch dort dann so wie was wer wo wann warum weil wenn oder aber nur noch schon sehr mehr viel viele alle alles jeder jede immer nie oft heute morgen gestern hier jetzt gut neu alt groß klein lang kurz hoch tief schnell langsam leicht schwer früh spät gern ganz halb frei klar laut leise warm kalt hell dunkel rot blau grün gelb weiß schwarz grau süß sauer still fest weit nah rund glatt falsch richtig wichtig möglich einfach ähnlich fertig ruhig lustig traurig schön müde heiß quer bequem ja falls lass fad also haben sein werden können müssen sollen wollen dürfen mögen machen gehen kommen sehen geben nehmen finden denken sagen fragen lesen schreiben spielen lernen arbeiten wohnen leben essen trinken laufen fahren fliegen schwimmen singen tanzen lachen hören kaufen tragen halten stehen liegen sitzen bringen helfen rufen zeigen bleiben fallen schlafen warten suchen öffnen schließen drücken üben tippen zählen träumen fühlen führen grüßen boxen mixen jagen joggen fassen lassen klappen glauben hoffen kochen backen malen bauen fragt sagt geht kommt lief ging kam sah gab nahm fand dachte sagte hatte war`.split(' ');
+const NOUNS = `Haus Hand Fuß Kopf Auge Ohr Mund Nase Tag Nacht Jahr Woche Monat Stunde Minute Zeit Welt Land Stadt Dorf Straße Weg Baum Wald Feld Berg Tal See Meer Fluss Insel Himmel Sonne Mond Stern Wind Regen Schnee Eis Feuer Wasser Luft Erde Stein Sand Gold Glas Holz Papier Buch Brief Wort Satz Text Seite Bild Tisch Stuhl Bett Tür Fenster Wand Dach Garten Blume Gras Apfel Birne Brot Käse Milch Kaffee Tee Suppe Salz Zucker Hund Katze Maus Pferd Kuh Vogel Fisch Bär Löwe Fuchs Hase Igel Kind Frau Mann Vater Mutter Bruder Schwester Freund Freundin Lehrer Schule Klasse Musik Lied Spiel Ball Auto Zug Bahn Rad Schiff Reise Urlaub Arbeit Büro Geld Preis Markt Laden Küche Zimmer Keller Treppe Brücke Turm Kirche Schloss Burg Name Frage Antwort Fehler Übung Tastatur Taste Finger Computer Telefon Lampe Uhr Jacke Schuh Hut Tasche Schlüssel Farbe Form Linie Punkt Kreis Ecke Mitte Ende Anfang Glück Freude Ruhe Mut Kraft Idee Plan Ziel Recht Wahl Ärger Größe Höhe Länge Zukunft Gefühl Geschichte Wetter Frühling Sommer Herbst Winter Montag Dienstag Mittwoch Donnerstag Freitag Samstag Sonntag Taxi Axt Box Hexe Typ Pyramide Physik Zyklus Quelle Qual Quark Qualität Yacht Xylophon Spaß Maß Gruß Soße Fußball Saal Aal Kiwi Hafen Insekt Juli Juni Kakao Zelt Zwerg Ufer Öl Übel Äpfel Öfen Tüte`.split(' ');
+const ALL = [...OTHER, ...NOUNS];
+const LOWER = [...new Set(ALL.map(w => w.toLowerCase()))];
+const SENTENCES = [
+ 'Heute scheint die Sonne, und wir gehen in den Park.',
+ 'Hast du schon gefrühstückt?',
+ 'Das ist eine gute Idee!',
+ 'Der Zug fährt um acht Uhr ab; wir sollten pünktlich sein.',
+ 'Bitte schließe das Fenster, es wird kalt.',
+ 'Im Garten blühen rote, gelbe und blaue Blumen.',
+ 'Wer übt, wird jeden Tag ein bisschen schneller.',
+ 'Die Katze schläft auf dem warmen Sofa.',
+ 'Morgen fahren wir ans Meer: Ich freue mich sehr!',
+ 'Kannst du mir bitte das Salz geben?',
+ 'Der alte Leuchtturm steht seit vielen Jahren am Hafen.',
+ 'Langsam und richtig ist besser als schnell und falsch.',
+ 'Nach dem Regen riecht der Wald besonders frisch.',
+ 'Wir treffen uns am Freitag vor dem Kino.',
+ 'Ein kurzer Spaziergang macht den Kopf wieder frei.',
+ 'Die Kinder spielen Fußball auf der grünen Wiese.',
+ 'Wie spät ist es eigentlich?',
+ 'Mein Bruder kocht heute eine große Suppe.',
+ 'Achte auf deine Haltung: Rücken gerade, Schultern locker.',
+ 'Die Finger bleiben auf der Grundreihe - das spart Zeit.',
+ 'Im Herbst fallen die bunten Blätter von den Bäumen.',
+ 'Der Bäcker verkauft frisches Brot und süße Brötchen.',
+ 'Zehn Finger sind schneller als zwei.',
+ 'Unser Nachbar repariert sein Fahrrad im Hof.',
+ 'Es war einmal ein kleiner Fuchs, der gern Geschichten hörte.',
+ 'Bitte antworte mir bis Montag, damit ich planen kann.',
+ 'Der Himmel ist klar, und die Sterne leuchten hell.',
+ 'Wo hast du deinen Schlüssel hingelegt?',
+ 'Übung macht den Meister.',
+ 'Das Wetter ändert sich heute schnell; nimm lieber eine Jacke mit.',
+ 'Ich trinke morgens gern einen Tee mit Honig.',
+ 'Die Bibliothek öffnet um neun Uhr und schließt um sechs.',
+ 'Quer über den Platz läuft ein Hund mit einem Ball.',
+ 'Jeder Fehler zeigt dir, was du noch üben kannst.',
+ 'Max und Julia bauen gemeinsam eine Sandburg.',
+ 'Zwölf Boxer jagen Viktor quer über den großen Sylter Deich.',
+ 'Falsches Üben von Xylophonmusik quält jeden größeren Zwerg.',
+ 'Schau nicht auf die Tasten, sondern auf den Text.',
+ 'Der Kaffee ist heiß, also trink ihn langsam.',
+ 'Am Wochenende besuchen wir unsere Großeltern auf dem Land.'
+];
+const BAVARIAN = [
+ "Nix gsagt is globt gnua.",
+ "Wer ko, der ko.",
+ "Nur ned hudln!",
+ "Wos mia ned wissn, macht uns ned hoaß.",
+ "Wer A sogt, muass aa B sogn.",
+ "Ohne Fleiß koa Preis.",
+ "Dahoam is dahoam.",
+ "Wia ma's macht, is' verkehrt.",
+ "A Wort is a Wort.",
+ "Wos lang dauert, werd endlich guad.",
+ "Langsam pressiert's.",
+ "A bisserl was geht oiwei.",
+ "Basst scho.",
+ "Des is ma wurscht.",
+ "A Hund is a scho.",
+ "Da werd da Hund in da Pfanna verruckt!",
+ "Do legst di nieda!",
+ "Mei, is des schee.",
+ "Des pack ma scho.",
+ "Etz geht's los!",
+ "Ois is guad.",
+ "Gscheid gmacht.",
+ "Mir san ned so.",
+ "Glei kracht's!",
+ "Hock di her.",
+ "Griaß di, wia geht's da?",
+ "Servus beinand!",
+ "Brotzeit is de scheenste Zeit.",
+ "Heid is a scheena Dog.",
+ "Pfiad di, bis moang!"
+];
+// Hochdeutsche Sätze, optional mit bayrischen Sprüchen gewürzt (ca. jeder vierte Satz).
+function sentenceSource() {
+  const de = bag(SENTENCES), by = bag(BAVARIAN);
+  return () => data.settings.bavarianOptIn && Math.random() < .25 ? by() : de();
+}
+function bag(arr) { let b = []; return () => { if (!b.length) b = [...arr].sort(() => Math.random() - .5); return b.pop(); }; }
+const ascii = w => w.replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* ---------- Lektionen ---------- */
+const STEPS = [
+ ['Grundreihe','asdfjklö'],['E und I','ei'],['R und U','ru'],['G und H','gh'],['T und Z','tz'],
+ ['W und O','wo'],['N und V','nv'],['C und M','cm'],['B und P','bp'],['Ä, Ü und Q','äüq'],['Y, X und ß','yxß']
+];
+function letterLesson(allowed, fresh) {
+  const set = new Set(allowed);
+  const pool = LOWER.filter(w => w.length >= 2 && [...w].every(c => set.has(c)));
+  const poolFresh = pool.filter(w => [...w].some(c => fresh.includes(c)));
+  const drill = () => {
+    const n = 3 + rnd(3); let s = '';
+    for (let i = 0; i < n; i++) s += Math.random() < .55 ? pick(fresh) : pick(allowed);
+    return s;
+  };
+  return () => {
+    if (pool.length < 12 ? Math.random() < .6 : Math.random() < .25) return drill();
+    if (poolFresh.length && Math.random() < .65) return pick(poolFresh);
+    return pool.length ? pick(pool) : drill();
+  };
+}
+function miniSentence() {
+  const n = 3 + rnd(5), ws = [];
+  for (let i = 0; i < n; i++) ws.push(Math.random() < .4 ? pick(NOUNS) : pick(OTHER));
+  if (n > 4 && Math.random() < .6) ws[1 + rnd(n - 2)] += pick([',', ',', ':', ';']);
+  if (Math.random() < .15) ws.splice(1 + rnd(n - 1), 0, '-');
+  return cap(ws.join(' ')) + pick(['.', '.', '.', '!', '?', '...']);
+}
+const SPECIAL = [
+ () => `(${pick(LOWER)})`, () => `"${pick(ALL)}"`, () => `${1 + rnd(99)} %`,
+ () => `${1 + rnd(500)},${String(rnd(100)).padStart(2,'0')} €`,
+ () => { const a = rnd(20), b = rnd(20); return `${a}+${b}=${a + b}`; },
+ () => `${pick(LOWER)}/${pick(LOWER)}`, () => `${pick(NOUNS)} & ${pick(NOUNS)}`, () => `#${pick(LOWER)}`,
+ () => `${ascii(pick(LOWER))}@${ascii(pick(LOWER))}.de`, () => `${pick(LOWER)}_${pick(LOWER)}`,
+ () => `§ ${1 + rnd(200)}`, () => `${rnd(10)}*${rnd(10)}`, () => `'${pick(LOWER)}'`,
+ () => `<${pick(LOWER)}>`, () => `[${rnd(100)}]`, () => `{${pick(LOWER)}}`, () => `${1 + rnd(99)} $`
+];
+const LESSONS = [];
+{
+  let acc = '';
+  STEPS.forEach(([name, fresh], i) => {
+    acc += fresh;
+    const allowed = acc, f = i === 0 ? acc : fresh;
+    LESSONS.push({name, keys: [...f].join(' '), make: () => letterLesson(allowed, f)});
+  });
+  LESSONS.push({name:'Großbuchstaben', keys:'Umschalttaste ⇧', make: () => () => Math.random() < .6 ? pick(NOUNS) : pick(OTHER)});
+  LESSONS.push({name:'Satzzeichen', keys:'. , : ; ! ? -', make: () => { const s = bag(SENTENCES); return () => Math.random() < .5 ? s() : miniSentence(); }});
+  LESSONS.push({name:'Ziffern', keys:'1 2 3 4 5 6 7 8 9 0', make: () => () => {
+    const r = Math.random();
+    if (r < .3) return String(rnd(10000));
+    if (r < .45) return `${1 + rnd(28)}.${1 + rnd(12)}.${1990 + rnd(40)}`;
+    if (r < .6) return `${rnd(24)}:${String(rnd(60)).padStart(2, '0')}`;
+    if (r < .85) return `${2 + rnd(98)} ${pick(NOUNS)}`;
+    return pick(ALL);
+  }});
+  LESSONS.push({name:'Sonderzeichen', keys:'( ) " / & % + = @ € # _', make: () => () => Math.random() < .6 ? pick(SPECIAL)() : pick(ALL)});
+  LESSONS.push({name:'Fließtext', keys:'alle Zeichen', make: () => sentenceSource()});
+}
+
+function makeSmart() {
+  const ks = data.keys; let N = 0, E = 0;
+  for (const c in ks) { N += ks[c].n; E += ks[c].e; }
+  const base = N ? E / N : .05;
+  const w = c => { const k = ks[c]; return (!k || k.n < 5) ? base : k.e / k.n; };
+  const top = ALL.map(word => {
+    const ws = [...word].map(w);
+    return [word, ws.reduce((a, b) => a + b, 0) / ws.length + Math.max(...ws) * .5];
+  }).sort((a, b) => b[1] - a[1]).slice(0, 120).map(x => x[0]);
+  const worst = Object.keys(ks).filter(c => c !== ' ' && ks[c].n >= 5 && ks[c].e > 0).sort((a, b) => w(b) - w(a)).slice(0, 5);
+  const sent = bag(SENTENCES);
+  return {
+    enough: N >= 300, worst,
+    token: () => {
+      const r = Math.random();
+      if (worst.length && r < .2) { let s = ''; const n = 3 + rnd(3); for (let i = 0; i < n; i++) s += pick(worst); return s; }
+      if (r < .3) return sent();
+      return pick(top);
+    }
+  };
+}
+
+/* ---------- Speicher ---------- */
+const KEY = 'tippfix-v1';
+const DEFAULTS = {duration:5, block:true, sound:false, keyboard:true, colors:true, fs:26, theme:'auto', cSrc:'gen', cLen:700, cTime:5, cLive:true, pick:'asdfjklö', pickShift:false, bavarianOptIn:false};
+function freshData() { return {settings:{...DEFAULTS}, sessions:[], keys:{}, lessons:{}}; }
+let data = freshData();
+try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && Array.isArray(d.sessions)) data = {...freshData(), ...d, settings:{...DEFAULTS, ...d.settings}}; } catch (e) {}
+let warned = false;
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(data)); }
+  catch (e) { if (!warned) { warned = true; toast('Speichern im Browser nicht möglich – nutze „Exportieren“.'); } }
+}
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
+
+/* ---------- Ansichten ---------- */
+let current = 'home';
+function show(v) {
+  current = v;
+  document.body.classList.toggle('training', v === 'train');
+  $$('.view').forEach(s => s.hidden = s.id !== 'v-' + v);
+  const tab = ['train', 'result', 'copy', 'copyres'].includes(v) ? 'home' : v;
+  $$('nav button').forEach(b => b.classList.toggle('active', b.dataset.nav === tab));
+  if (v === 'home') { renderHome(); setupCopy(); renderPick(); }
+  if (v === 'stats') renderStats();
+  if (v === 'settings') renderSettings();
+  window.scrollTo(0, 0);
+}
+$$('nav button').forEach(b => b.onclick = () => {
+  const v = b.dataset.nav;
+  if (S && !S.done) { pause(); if (v === 'home') { show('train'); focusInput(); return; } }
+  if (C && !C.done && v === 'home') { show('copy'); cInput.focus(); return; }
+  show(v);
+});
+
+function renderHome() {
+  const g = $('#lessonGrid'); g.innerHTML = '';
+  LESSONS.forEach((L, i) => {
+    const best = data.lessons[i + 1];
+    const c = document.createElement('button'); c.className = 'card';
+    c.innerHTML = `<div class="cn">Lektion ${i + 1}</div><div class="ct">${esc(L.name)}</div><div class="ck">${esc(L.keys)}</div>` +
+      (best ? `<div class="cb">Beste: ${best.cpm} A/min · ${best.strokes ? `${num(best.errors)}/${num(best.strokes)} Fehler (${fmt1(best.rate)} %)` : fmt1(best.rate) + ' %'}</div>` : `<div class="cb none">noch nicht geübt</div>`);
+    c.onclick = () => startLesson(i + 1);
+    g.appendChild(c);
+  });
+}
+
+/* ---------- Training ---------- */
+const textBox = $('#textBox'), hid = $('#hid'), textWrap = $('#textWrap');
+const kbEls = makeKB($('#kb'));
+$('#legend').innerHTML = ['Lp','Lr','Lm','Li','T','Ri'].map(f => `<span><i style="background:var(--f${f})"></i>${FINGER[f].replace(/^linker |^rechter /, m => f === 'Li' ? 'links ' : f === 'Ri' ? 'rechts ' : '')}</span>`).join('');
+let S = null, spans = [], hl = [];
+
+function startLesson(id) {
+  const L = LESSONS[id - 1];
+  startSession({title:`Lektion ${id}: ${L.name}`, sub:`Neue Tasten: ${L.keys}`, token:L.make(), lessonId:id, restart:() => startLesson(id)});
+}
+function startSmart() {
+  const sm = makeSmart();
+  const sub = sm.enough
+    ? (sm.worst.length ? `Schwerpunkt auf: ${sm.worst.map(c => c === ' ' ? '␣' : c).join(' ')}` : 'Übt Wörter mit deinen fehleranfälligsten Zeichen.')
+    : 'Noch wenig Daten. Übe ein paar Lektionen, dann wird das Training gezielter.';
+  startSession({title:'Intelligentes Training', sub, token:sm.token, restart:startSmart});
+}
+function startFree(text) {
+  startSession({title:'Eigener Text', sub:`${[...text].length} Zeichen`, text, restart:() => startFree(text)});
+}
+function genChunk(token, len) { const out = []; let n = 0; while (n < len) { const t = token(); out.push(t); n += t.length + 1; } return out.join(' ') + ' '; }
+
+function startSession(cfg) {
+  S = {...cfg, chars:[], pos:0, correct:0, strokes:0, errors:0, errAt:new Set(), acc:0, resumeAt:0, running:false,
+       begun:false, done:false, lastKey:0, keyLocal:{}, endless:!cfg.text, limit:data.settings.duration * 60};
+  textBox.innerHTML = ''; spans = []; textBox.scrollTop = 0;
+  addText(cfg.text || genChunk(cfg.token, 500));
+  $('#tTitle').textContent = cfg.title; $('#tSub').textContent = cfg.sub || '';
+  $('#mTimeL').textContent = S.endless ? 'Restzeit' : 'Zeit';
+  setStatus('<b>Bereit.</b> Die Zeit startet mit dem ersten Anschlag. Esc pausiert.');
+  show('train'); applySettings(); renderCursor(); updateMeters(); focusInput();
+}
+function addText(str) {
+  const f = document.createDocumentFragment();
+  for (const ch of str) {
+    const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = ch;
+    f.appendChild(sp); spans.push(sp); S.chars.push(ch);
+  }
+  textBox.appendChild(f);
+}
+function focusInput() { if (S && !S.done) { hid.focus({preventScroll:true}); textWrap.classList.remove('blur'); } }
+function setStatus(html) { $('#status').innerHTML = html; }
+const now = () => performance.now();
+function elapsed() { return S ? S.acc + (S.running ? (now() - S.resumeAt) / 1000 : 0) : 0; }
+function resume() { if (!S.running) { S.running = true; S.resumeAt = now(); S.begun = true; setStatus(''); } }
+function pause(msg) {
+  if (!S || S.done) return;
+  if (S.running) { S.acc += (now() - S.resumeAt) / 1000; S.running = false; }
+  if (S.begun) setStatus(msg || '<b>Pausiert.</b> Tippe einfach weiter oder drücke Esc.');
+}
+
+function handleChar(c) {
+  if (!S || S.done) return;
+  if (c === '\n' || c === '\r' || c === '\t') return;
+  resume();
+  S.lastKey = now();
+  const exp = S.chars[S.pos];
+  const ks = S.keyLocal[exp] || (S.keyLocal[exp] = {n:0, e:0});
+  S.strokes++;
+  const sp = spans[S.pos];
+  if (c === exp) {
+    ks.n++; S.correct++;
+    sp.classList.remove('cur', 'wrong');
+    sp.classList.add(S.errAt.has(S.pos) ? 'fix' : 'ok');
+    advance();
+  } else {
+    if (!S.errAt.has(S.pos)) { ks.e++; S.errAt.add(S.pos); }
+    S.errors++;
+    beep(); flashKey(exp);
+    if (data.settings.block) { sp.classList.add('wrong'); }
+    else { ks.n++; sp.classList.remove('cur', 'wrong'); sp.classList.add('err'); advance(); }
+  }
+  updateMeters();
+}
+function advance() {
+  S.pos++;
+  if (S.endless && S.chars.length - S.pos < 200) addText(genChunk(S.token, 400));
+  if (!S.endless && S.pos >= S.chars.length) { finish(false); return; }
+  renderCursor();
+}
+function renderCursor() {
+  const sp = spans[S.pos]; if (!sp) return;
+  sp.classList.add('cur');
+  const lh = parseFloat(getComputedStyle(textBox).lineHeight) || 40;
+  textBox.scrollTop = Math.max(0, sp.offsetTop - lh);
+  highlight(S.chars[S.pos]);
+}
+function highlight(ch) {
+  hl.forEach(e => e.classList.remove('hl')); hl = [];
+  const info = CHARMAP[ch], h = $('#hint');
+  if (!info) { h.innerHTML = ch ? `Nächstes Zeichen <b>„${esc(ch)}“</b> ist auf der Tastatur nicht abgebildet.` : ''; return; }
+  const add = id => { const e = kbEls[id]; if (e) { e.classList.add('hl'); hl.push(e); } };
+  add(info.id);
+  let txt = ch === ' ' ? '<b>Leertaste</b> – Daumen' : `<b>„${esc(ch)}“</b> – ${FINGER[info.f]}`;
+  if (info.mod === 'shift') { const side = info.f[0] === 'L' ? 'R' : 'L'; add('Shift' + side); txt += ` + Umschalttaste ${side === 'L' ? 'links' : 'rechts'}`; }
+  if (info.mod === 'altgr') { add('AltGr'); txt += ' + Alt Gr'; }
+  h.innerHTML = txt;
+}
+function flashKey(ch) {
+  const info = CHARMAP[ch]; const e = info && kbEls[info.id]; if (!e) return;
+  e.classList.add('bad'); setTimeout(() => e.classList.remove('bad'), 250);
+}
+let actx = null;
+function beep() {
+  if (!data.settings.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = 220; o.type = 'square'; g.gain.value = .05;
+    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + .07);
+  } catch (e) {}
+}
+function stats() {
+  const secs = elapsed();
+  return {secs, cpm: secs > 1 ? Math.round(S.correct / secs * 60) : 0, rate: S.strokes ? S.errors / S.strokes * 100 : 0};
+}
+function updateMeters() {
+  if (!S) return;
+  const st = stats();
+  $('#mTime').textContent = mmss(S.endless ? S.limit - st.secs : st.secs);
+  $('#mCpm').textContent = st.cpm;
+  $('#mErr').textContent = S.errors;
+  $('#mRate').textContent = fmt1(st.rate) + ' %';
+  $('#mRateAbs').textContent = `${num(S.errors)} von ${num(S.strokes)} Anschlägen`;
+  $('#prog').style.width = (S.endless ? Math.min(1, st.secs / S.limit) : S.pos / S.chars.length) * 100 + '%';
+}
+setInterval(() => {
+  if (!S || S.done || !S.running) return;
+  if (now() - S.lastKey > 8000) {
+    S.acc += Math.max(0, (S.lastKey - S.resumeAt) / 1000); S.running = false;
+    setStatus('<b>Automatisch pausiert.</b> Tippe weiter, wenn du bereit bist.');
+  }
+  if (S.endless && elapsed() >= S.limit) finish(false);
+  updateMeters();
+}, 200);
+
+function finish(aborted) {
+  if (!S || S.done) return;
+  if (S.running) { S.acc += (now() - S.resumeAt) / 1000; S.running = false; }
+  if (S.endless) S.acc = Math.min(S.acc, S.limit);
+  S.done = true;
+  const st = stats();
+  hl.forEach(e => e.classList.remove('hl'));
+  if (st.secs < 10 || S.correct < 20) {
+    if (aborted) { toast('Übung zu kurz – nicht gespeichert.'); show('home'); return; }
+  }
+  let newBest = false, prev = null;
+  if (st.secs >= 10 && S.correct >= 20) {
+    data.sessions.push({t:Date.now(), title:S.title, lesson:S.lessonId || null, secs:Math.round(st.secs), chars:S.correct, errors:S.errors, strokes:S.strokes, cpm:st.cpm, rate:+st.rate.toFixed(2)});
+    if (data.sessions.length > 2000) data.sessions.splice(0, data.sessions.length - 2000);
+    for (const c in S.keyLocal) { const g = data.keys[c] || (data.keys[c] = {n:0, e:0}); g.n += S.keyLocal[c].n; g.e += S.keyLocal[c].e; }
+    if (S.lessonId) {
+      prev = data.lessons[S.lessonId];
+      if (!prev || st.cpm > prev.cpm) { newBest = !!prev; data.lessons[S.lessonId] = {cpm:st.cpm, rate:+st.rate.toFixed(2), errors:S.errors, strokes:S.strokes}; }
+    }
+    save();
+  }
+  showResult(st, newBest, aborted);
+}
+function showResult(st, newBest, aborted) {
+  $('#rTitle').textContent = S.title + (aborted ? ' (vorzeitig beendet)' : '');
+  $('#rCpm').textContent = st.cpm;
+  $('#rWpm').textContent = Math.round(st.cpm / 5);
+  $('#rRate').textContent = fmt1(st.rate) + ' %';
+  $('#rRateAbs').textContent = `${num(S.errors)} Fehler bei ${num(S.strokes)} Anschlägen`;
+  $('#rTime').textContent = mmss(st.secs);
+  let verdict = st.rate <= 1 ? 'Sehr genau – du kannst das Tempo steigern.' : st.rate <= 3 ? 'Gute Genauigkeit.' : st.rate <= 6 ? 'Etwas langsamer tippen, dafür genauer.' : 'Viele Fehler – lieber langsamer und sauber üben.';
+  $('#rBest').innerHTML = (newBest ? '<span class="grunt">Mehr Power! Hrr-hrr-hrr! </span><span class="best">Neue Bestleistung für diese Lektion! </span>' : '') + `<span class="muted">${verdict}</span>`;
+  const top = Object.entries(S.keyLocal).filter(([, v]) => v.e > 0).sort((a, b) => b[1].e - a[1].e).slice(0, 8);
+  $('#rKeys').innerHTML = top.length ? top.map(([c, v]) => `<span class="chip">${c === ' ' ? '␣' : esc(c)} · ${v.e} von ${v.n}</span>`).join('') : '<span class="chip good">Keine Fehler – stark!</span>';
+  const next = S.lessonId && S.lessonId < LESSONS.length ? S.lessonId + 1 : null;
+  $('#rNext').hidden = !next;
+  $('#rNext').onclick = () => startLesson(next);
+  $('#rAgain').onclick = () => S.restart();
+  show('result');
+}
+$('#rHome').onclick = () => show('home');
+$('#tStop').onclick = () => finish(true);
+$('#tPause').onclick = () => { if (S.running) pause(); focusInput(); };
+$('#cardSmart').onclick = startSmart;
+$('#freeStart').onclick = () => {
+  let t = $('#freeText').value
+    .replace(/[„“”«»]/g, '"').replace(/[‚‘’›‹]/g, "'").replace(/[–—]/g, '-').replace(/…/g, '...')
+    .replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+  if ([...t].length < 5) { toast('Bitte zuerst einen Text einfügen.'); return; }
+  startFree(t);
+};
+
+const normText = s => s
+  .replace(/[„“”«»]/g, '"').replace(/[‚‘’›‹]/g, "'").replace(/[–—]/g, '-').replace(/…/g, '...')
+  .replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+
+/* ---------- Eigene Tastenauswahl ---------- */
+const DEAD = new Set(['^', '´', '°', '`']);
+const ROWS = [
+  ['Zahlenreihe', '1234567890ß'],
+  ['Obere Reihe', 'qwertzuiopü+'],
+  ['Grundreihe', 'asdfghjklöä#'],
+  ['Grundstellung', 'asdfjklö'],
+  ['Untere Reihe', '<yxcvbnm,.-'],
+  ['Alle Buchstaben', 'abcdefghijklmnopqrstuvwxyzäöüß'],
+];
+const pickEls = makeKB($('#pickKb'));
+for (const id in pickEls) {
+  if (!id.startsWith('c:') || DEAD.has(id.slice(2))) continue;
+  const el = pickEls[id], ch = id.slice(2);
+  el.dataset.pick = ch;
+  el.onclick = () => { togglePick([ch], !pickSet().has(ch)); };
+}
+const pickSet = () => new Set([...(data.settings.pick || '')]);
+function togglePick(chars, on) {
+  const s = pickSet(); chars.forEach(c => on ? s.add(c) : s.delete(c));
+  data.settings.pick = [...s].join(''); save(); renderPick();
+}
+$('#pickRows').innerHTML = ROWS.map((r, i) => `<button class="btn" data-row="${i}">${r[0]}</button>`).join('') +
+  '<button class="btn" id="pickClear">Auswahl leeren</button>';
+$$('#pickRows [data-row]').forEach(b => b.onclick = () => {
+  const chars = [...ROWS[b.dataset.row][1]], s = pickSet();
+  togglePick(chars, !chars.every(c => s.has(c)));
+});
+$('#pickClear').onclick = () => { data.settings.pick = ''; save(); renderPick(); };
+$('#pickShift').onchange = e => { data.settings.pickShift = e.target.checked; save(); renderPick(); };
+function pickChars() {
+  const base = [...pickSet()], all = new Set(base);
+  if (data.settings.pickShift) for (const c of base) {
+    const row = KB.flat().find(k => Array.isArray(k) && k[0] === c);
+    if (row && row[1] && !DEAD.has(row[1])) all.add(row[1]);
+  }
+  return [...all];
+}
+function renderPick() {
+  const s = pickSet();
+  for (const id in pickEls) pickEls[id].classList.toggle('sel', id.startsWith('c:') && s.has(id.slice(2)));
+  $$('#pickRows [data-row]').forEach(b => { const ch = [...ROWS[b.dataset.row][1]]; b.classList.toggle('on', ch.every(c => s.has(c))); });
+  $('#pickShift').checked = data.settings.pickShift;
+  const n = pickChars().length;
+  $('#pickInfo').textContent = n ? `${n} Zeichen ausgewählt: ${pickChars().join(' ')}` : 'Noch keine Taste ausgewählt.';
+  $('#pickStart').disabled = !n;
+}
+function customLesson(base, shiftOn) {
+  // Umschaltvarianten der gewählten Tasten
+  const shiftOf = {};
+  if (shiftOn) for (const c of base) {
+    const k = KB.flat().find(x => Array.isArray(x) && x[0] === c);
+    if (k && k[1] && !DEAD.has(k[1])) shiftOf[c] = k[1];
+  }
+  const set = new Set([...base, ...Object.values(shiftOf)]);
+  // Mit Umschalttaste: Wörter in richtiger Schreibweise; ohne: alles klein
+  const src = shiftOn ? ALL : LOWER;
+  const pool = [...new Set(src)].filter(w => w.length >= 2 && [...w].every(c => set.has(c)));
+  const drill = () => {
+    const n = 3 + rnd(3); let t = '';
+    for (let i = 0; i < n; i++) { const c = pick(base); t += shiftOf[c] && Math.random() < .2 ? shiftOf[c] : c; }
+    return t;
+  };
+  return () => (pool.length < 12 ? Math.random() < .65 : Math.random() < .3) || !pool.length ? drill() : pick(pool);
+}
+function startPick() {
+  const chars = pickChars(); if (!chars.length) return;
+  startSession({title:'Eigene Tastenauswahl', sub:`Tasten: ${chars.join(' ')}`,
+    token:customLesson([...pickSet()], data.settings.pickShift), restart:startPick});
+}
+$('#pickStart').onclick = startPick;
+
+/* ---------- Abschrift mit Korrektur ---------- */
+let C = null;
+const cInput = $('#cInput'), cSrcBox = $('#cSrcBox');
+function copyText(len) { const s = sentenceSource(), out = []; let n = 0; while (n < len) { const x = s(); out.push(x); n += x.length + 1; } return out.join(' '); }
+function setupCopy() {
+  const st = data.settings;
+  $('#cSrc').value = st.cSrc; $('#cLen').value = st.cLen; $('#cTime').value = st.cTime; $('#cLive').value = st.cLive ? '1' : '0';
+}
+['cSrc', 'cLen', 'cTime', 'cLive'].forEach(id => $('#' + id).addEventListener('change', e => {
+  data.settings[id] = id === 'cLive' ? e.target.value === '1' : (id === 'cSrc' ? e.target.value : +e.target.value);
+  save();
+}));
+function newCopyText() {
+  if (data.settings.cSrc === 'own') {
+    const t = normText($('#freeText').value);
+    if ([...t].length < 5) { toast('Bitte zuerst oben unter „Eigener Text“ einen Text einfügen.'); return null; }
+    return t;
+  }
+  return copyText(data.settings.cLen);
+}
+$('#cStart').onclick = () => { const t = newCopyText(); if (t) startCopy(t); };
+
+function startCopy(text) {
+  C = {text, words:text.split(' '), limit:data.settings.cTime * 60, live:data.settings.cLive,
+       start:0, end:0, done:false, fixes:0, ops:null};
+  cSrcBox.innerHTML = C.words.map((w, i) => `<span class="w" data-i="${i}">${esc(w)}</span>`).join(' ');
+  C.spans = [...cSrcBox.querySelectorAll('.w')];
+  cInput.value = ''; cInput.readOnly = false;
+  $('#cTimeL').textContent = C.limit ? 'Restzeit' : 'Zeit';
+  $('#cTitle').textContent = C.live ? 'Abschrift mit Korrektur' : 'Abschrift – Prüfungsmodus';
+  $('#cSub').textContent = C.live ? 'Korrigieren ist erlaubt. Gewertet wird nur der Text am Ende.' : 'Fehler werden erst nach der Abgabe angezeigt. Korrigieren ist erlaubt.';
+  $('#cmCpmL').textContent = C.live ? 'Korrekte A/min' : 'Anschläge/Min.';
+  show('copy'); applySettings(); copyUpdate(); cSrcBox.scrollTop = 0;
+  cInput.focus();
+}
+const cElapsed = () => !C || !C.start ? 0 : ((C.end || performance.now()) - C.start) / 1000;
+
+// Wortweiser Vergleich (längste gemeinsame Teilfolge). Liefert Operationen in Originalreihenfolge.
+function diffWords(orig, typed) {
+  const n = orig.length, m = typed.length, W = m + 1;
+  const dp = new Uint16Array((n + 1) * (m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    dp[i * W + j] = orig[i] === typed[j] ? dp[(i + 1) * W + j + 1] + 1 : Math.max(dp[(i + 1) * W + j], dp[i * W + j + 1]);
+  const raw = []; let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (orig[i] === typed[j]) { raw.push({t:'ok', oi:i}); i++; j++; }
+    else if (dp[i * W + j + 1] >= dp[(i + 1) * W + j]) { raw.push({t:'ins', w:typed[j]}); j++; }
+    else { raw.push({t:'del', oi:i}); i++; }
+  }
+  while (j < m) raw.push({t:'ins', w:typed[j++]});
+  while (i < n) raw.push({t:'rest', oi:i++});
+  // Fehlende + überzählige Wörter zwischen zwei Treffern zu "falschen Wörtern" zusammenfassen.
+  const ops = [];
+  for (let k = 0; k < raw.length;) {
+    if (raw[k].t === 'ok') { ops.push(raw[k++]); continue; }
+    if (raw[k].t === 'rest') { ops.push(raw[k++]); continue; }
+    const dels = [], ins = [];
+    while (k < raw.length && raw[k].t !== 'ok' && raw[k].t !== 'rest') (raw[k].t === 'del' ? dels : ins).push(raw[k++]);
+    // Am Ende: Unfertiges wird den noch offenen Wörtern zugeordnet.
+    while (ins.length > dels.length && k < raw.length && raw[k].t === 'rest') dels.push({t:'del', oi:raw[k++].oi});
+    const p = Math.min(dels.length, ins.length);
+    for (let q = 0; q < Math.max(dels.length, ins.length); q++) {
+      if (q < p) ops.push({t:'sub', oi:dels[q].oi, w:ins[q].w});
+      else if (q < dels.length) ops.push({t:'miss', oi:dels[q].oi});
+      else ops.push({t:'ins', w:ins[q].w});
+    }
+  }
+  return ops;
+}
+function copyEval() {
+  const typed = normText(cInput.value);
+  const tw = typed ? typed.split(' ') : [];
+  const ops = diffWords(C.words, tw);
+  let errors = 0, okChars = 0, reached = 0;
+  for (const o of ops) {
+    if (o.t === 'ok') { okChars += C.words[o.oi].length + 1; reached++; }
+    else if (o.t === 'sub' || o.t === 'miss') { errors++; reached++; }
+    else if (o.t === 'ins') errors++;
+  }
+  return {ops, errors, okChars, reached, exact:typed === C.text};
+}
+function copyUpdate() {
+  if (!C) return;
+  const ev = copyEval(), secs = cElapsed();
+  C.ops = ev.ops;
+  // Wird gerade noch am letzten Wort getippt?
+  const typing = cInput.value.length > 0 && !/\s$/.test(cInput.value);
+  let lastK = -1;
+  ev.ops.forEach((o, k) => { if (o.t !== 'rest') lastK = k; });
+  let curIdx = -1, partial = false;
+  C.spans.forEach(s => s.className = 'w');
+  // Prüfungsmodus: keinerlei Markierung in der Vorlage, damit nichts über Fehler verraten wird.
+  if (C.live) ev.ops.forEach((o, k) => {
+    if (o.oi === undefined) return;
+    const s = C.spans[o.oi];
+    if (o.t === 'rest') { if (curIdx < 0) curIdx = o.oi; return; }
+    if (o.t === 'ok') s.classList.add('ok');
+    else if (k === lastK && typing && o.t === 'sub' && C.words[o.oi].startsWith(o.w)) { curIdx = o.oi; partial = true; }
+    else if (C.live) s.classList.add('err');
+  });
+  if (curIdx >= 0) {
+    const s = C.spans[curIdx]; s.classList.add('cur');
+    const top = s.offsetTop - cSrcBox.offsetTop;
+    if (top < cSrcBox.scrollTop || top > cSrcBox.scrollTop + cSrcBox.clientHeight - 40) cSrcBox.scrollTop = Math.max(0, top - 40);
+  }
+  $('#cmTime').textContent = mmss(C.limit ? C.limit - secs : secs);
+  const gross = normText(cInput.value).length;
+  $('#cmCpm').textContent = secs > 2 ? Math.round((C.live ? ev.okChars : gross) / secs * 60) : 0;
+  $('#cmErr').textContent = C.live ? ev.errors - (partial ? 1 : 0) : '–';
+  $('#cmFix').textContent = C.fixes;
+  $('#cProg').style.width = (C.limit ? Math.min(1, secs / C.limit) : Math.min(1, gross / C.text.length)) * 100 + '%';
+  return ev;
+}
+cInput.addEventListener('input', e => {
+  if (!C || C.done) return;
+  if (!C.start) C.start = performance.now();
+  if (e.inputType && e.inputType.startsWith('delete')) C.fixes++;
+  const ev = copyUpdate();
+  if (ev && ev.exact && C.live) copyFinish();
+});
+cInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); copyFinish(); }
+  else if (e.key === 'Enter') e.preventDefault();
+});
+cInput.addEventListener('paste', e => e.preventDefault());
+cInput.addEventListener('drop', e => e.preventDefault());
+setInterval(() => {
+  if (!C || C.done || !C.start) return;
+  if (C.limit && cElapsed() >= C.limit) { C.end = C.start + C.limit * 1000; copyFinish(); return; }
+  copyUpdate();
+}, 250);
+$('#cDone').onclick = () => copyFinish();
+$('#cCancel').onclick = () => { if (C) C.done = true; show('home'); };
+
+function copyFinish() {
+  if (!C || C.done) return;
+  if (!C.end) C.end = performance.now();
+  C.done = true; cInput.readOnly = true;
+  const secs = cElapsed();
+  const ev = copyEval();
+  const cpm = secs > 0 ? Math.round(ev.okChars / secs * 60) : 0;
+  const rate = ev.reached ? ev.errors / ev.reached * 100 : 0;
+  if (secs >= 10 && ev.okChars >= 20) {
+    data.sessions.push({t:Date.now(), title:C.live ? 'Abschrift' : 'Abschrift (Prüfung)', lesson:null, secs:Math.round(secs), chars:ev.okChars, errors:ev.errors, strokes:0, words:ev.reached, cpm, rate:+rate.toFixed(2)});
+    save();
+  }
+  $('#crDiff').innerHTML = ev.ops.map(o => {
+    if (o.t === 'ok') return `<span class="w ok">${esc(C.words[o.oi])}</span>`;
+    if (o.t === 'sub') return `<span class="w err">${esc(C.words[o.oi])}<span class="typed">${esc(o.w)}</span></span>`;
+    if (o.t === 'miss') return `<span class="w miss">${esc(C.words[o.oi])}</span>`;
+    if (o.t === 'ins') return `<span class="w ins">${esc(o.w)}</span>`;
+    return `<span class="w rest">${esc(C.words[o.oi])}</span>`;
+  }).join(' ');
+  $('#crErr').textContent = ev.errors;
+  $('#crErrAbs').textContent = `von ${num(ev.reached)} getippten Wörtern (${fmt1(ev.reached ? ev.errors / ev.reached * 100 : 0)} %)`;
+  $('#crCpm').textContent = cpm;
+  $('#crDone').textContent = Math.round(ev.reached / C.words.length * 100) + ' %';
+  $('#crTime').textContent = mmss(secs);
+  $('#crFix').textContent = C.fixes;
+  const all = ev.reached === C.words.length;
+  $('#crVerdict').innerHTML = ev.exact
+    ? '<span class="best">Vollständig und fehlerfrei – perfekt!</span>'
+    : `<span class="muted">${all ? 'Vollständig abgeschrieben' : 'Nicht ganz fertig geworden'}, ${ev.errors ? ev.errors + ' Fehler im Endtext.' : 'ohne Fehler im geschafften Teil.'}</span>`;
+  show('copyres');
+}
+$('#crAgain').onclick = () => startCopy(C.text);
+$('#crNew').onclick = () => { const t = newCopyText(); if (t) startCopy(t); };
+$('#crHome').onclick = () => show('home');
+
+// Eingabe über ein unsichtbares Feld: so funktionieren Umlaute und Tottasten zuverlässig.
+function flush() { const v = hid.value; hid.value = ''; for (const ch of v) handleChar(ch); }
+hid.addEventListener('input', e => { if (!e.isComposing) flush(); });
+hid.addEventListener('compositionend', flush);
+hid.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.preventDefault(); if (S && !S.done) { S.running ? pause() : (S.begun && resume()); } return; }
+  if (e.key === 'Tab' || e.key === 'Backspace' || e.key === 'Enter') e.preventDefault();
+});
+hid.addEventListener('blur', () => {
+  if (S && !S.done && current === 'train') { pause('<b>Pausiert.</b> Klicke in den Text, um weiterzumachen.'); textWrap.classList.add('blur'); }
+});
+textWrap.addEventListener('mousedown', e => { e.preventDefault(); focusInput(); });
+document.addEventListener('keydown', e => {
+  if (current === 'train' && S && !S.done && document.activeElement !== hid && !e.ctrlKey && !e.metaKey) focusInput();
+});
+
+/* ---------- Statistik ---------- */
+const heatEls = makeKB($('#heat'));
+function renderStats() {
+  const ss = data.sessions;
+  const total = ss.reduce((a, s) => a + s.secs, 0);
+  const last = ss.slice(-10);
+  const avg = (arr, f) => arr.length ? arr.reduce((a, s) => a + f(s), 0) / arr.length : 0;
+  const best = ss.reduce((m, s) => Math.max(m, s.cpm), 0);
+  const lastT = ss.filter(s => s.strokes > 0).slice(-10).reduce((a, s) => ({errors:a.errors + s.errors, strokes:a.strokes + s.strokes}), {errors:0, strokes:0});
+  const h = Math.floor(total / 3600), m = Math.round((total % 3600) / 60);
+  $('#sCards').innerHTML = [
+    ['Übungen', ss.length], ['Übungszeit', h ? `${h} h ${m} min` : `${m} min`],
+    ['Ø A/min (letzte 10)', Math.round(avg(last, s => s.cpm))], ['Fehler (letzte 10 Lektionen)', fmt1(lastT.strokes ? lastT.errors / lastT.strokes * 100 : 0) + ' %', `${num(lastT.errors)} von ${num(lastT.strokes)} Anschlägen`],
+    ['Bestwert A/min', best]
+  ].map(([l, v, sub]) => `<div class="meter"><div class="l">${l}</div><div class="v">${v}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`).join('');
+  drawChart();
+  // Heatmap
+  for (const id in heatEls) {
+    const el = heatEls[id], chars = KEYCHARS[id];
+    el.querySelector('.r')?.remove();
+    el.style.background = ''; el.title = '';
+    if (!chars) continue;
+    let n = 0, e = 0; chars.forEach(c => { const k = data.keys[c]; if (k) { n += k.n; e += k.e; } });
+    if (n < 10) continue;
+    const r = e / n, hue = Math.max(0, 120 - r * 1200);
+    el.style.background = `hsl(${hue},65%,58%)`; el.style.color = '#111';
+    el.title = `${fmt1(r * 100)} % Fehler (${n} Anschläge)`;
+    el.insertAdjacentHTML('beforeend', `<span class="r">${Math.round(r * 100)}%</span>`);
+  }
+  const top = Object.entries(data.keys).filter(([, v]) => v.n >= 10 && v.e > 0).sort((a, b) => b[1].e / b[1].n - a[1].e / a[1].n).slice(0, 12);
+  $('#sTop').innerHTML = top.length ? top.map(([c, v]) => `<span class="chip">${c === ' ' ? '␣' : esc(c)} · ${num(v.e)} von ${num(v.n)} (${fmt1(v.e / v.n * 100)} %)</span>`).join('') : '<span class="muted">Noch nicht genug Daten.</span>';
+  const rows = ss.slice(-20).reverse();
+  $('#sTable').innerHTML = rows.length
+    ? '<tr><th>Datum</th><th>Übung</th><th class="num">Dauer</th><th class="num">A/min</th><th class="num">Fehler</th></tr>' +
+      rows.map(s => `<tr><td>${new Date(s.t).toLocaleString('de-DE', {dateStyle:'short', timeStyle:'short'})}</td><td>${esc(s.title)}</td><td class="num">${mmss(s.secs)}</td><td class="num">${s.cpm}</td><td class="num">${errText(s)}</td></tr>`).join('')
+    : '<tr><td class="muted">Noch keine Übungen gespeichert.</td></tr>';
+}
+function drawChart() {
+  const cv = $('#chart'), dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight; if (!W) return;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const css = getComputedStyle(document.documentElement), col = v => css.getPropertyValue(v).trim();
+  const ss = data.sessions.slice(-40);
+  g.font = '12px system-ui, sans-serif'; g.fillStyle = col('--muted');
+  if (ss.length < 2) { g.fillText('Nach zwei gespeicherten Übungen erscheint hier dein Verlauf.', 10, H / 2); return; }
+  const L = 40, R = 40, T = 12, B = 22, w = W - L - R, h = H - T - B;
+  const maxC = Math.max(50, ...ss.map(s => s.cpm)) * 1.1, maxE = Math.max(5, ...ss.map(s => s.rate)) * 1.1;
+  g.strokeStyle = col('--line'); g.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = T + h - h * i / 4; g.beginPath(); g.moveTo(L, y); g.lineTo(L + w, y); g.stroke();
+    g.fillStyle = col('--accent'); g.textAlign = 'right'; g.fillText(Math.round(maxC * i / 4), L - 6, y + 4);
+    g.fillStyle = col('--err'); g.textAlign = 'left'; g.fillText(Math.round(maxE * i / 4) + '%', L + w + 6, y + 4);
+  }
+  const x = i => L + w * i / (ss.length - 1);
+  const line = (f, max, c) => {
+    g.strokeStyle = c; g.lineWidth = 2; g.beginPath();
+    ss.forEach((s, i) => { const y = T + h - h * f(s) / max; i ? g.lineTo(x(i), y) : g.moveTo(x(i), y); }); g.stroke();
+    g.fillStyle = c; ss.forEach((s, i) => { g.beginPath(); g.arc(x(i), T + h - h * f(s) / max, 2.5, 0, 7); g.fill(); });
+  };
+  line(s => s.rate, maxE, col('--err'));
+  line(s => s.cpm, maxC, col('--accent'));
+}
+window.addEventListener('resize', () => { if (current === 'stats') drawChart(); if (current === 'train' && S) renderCursor(); });
+
+/* ---------- Einstellungen ---------- */
+function applySettings() {
+  const st = data.settings;
+  document.documentElement.dataset.theme = st.theme === 'auto' ? '' : st.theme;
+  if (st.theme === 'auto') delete document.documentElement.dataset.theme;
+  document.documentElement.style.setProperty('--fs', st.fs + 'px');
+  $('#kbWrap').hidden = !st.keyboard;
+  $('#kb').classList.toggle('colors', st.colors);
+  $('#legend').hidden = !st.colors;
+}
+function renderSettings() {
+  const st = data.settings;
+  $('#oDur').value = st.duration; $('#oBlock').checked = st.block; $('#oSound').checked = st.sound; $('#oBav').checked = st.bavarianOptIn;
+  $('#oKb').checked = st.keyboard; $('#oColors').checked = st.colors; $('#oFs').value = st.fs; $('#oTheme').value = st.theme;
+}
+const bind = (id, key, conv) => $(id).addEventListener('change', e => {
+  data.settings[key] = conv(e.target); save(); applySettings();
+});
+bind('#oDur', 'duration', e => +e.value); bind('#oBlock', 'block', e => e.checked); bind('#oSound', 'sound', e => e.checked); bind('#oBav', 'bavarianOptIn', e => e.checked);
+bind('#oKb', 'keyboard', e => e.checked); bind('#oColors', 'colors', e => e.checked); bind('#oFs', 'fs', e => +e.value); bind('#oTheme', 'theme', e => e.value);
+$('#dExport').onclick = () => {
+  const blob = new Blob([JSON.stringify(data, null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `tastomat3000-daten-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('#dImport').onclick = () => $('#dFile').click();
+$('#dFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!d || !Array.isArray(d.sessions)) throw 0;
+    if (!confirm(`${d.sessions.length} Übungen importieren? Die aktuellen Daten werden ersetzt.`)) return;
+    data = {...freshData(), ...d, settings:{...DEFAULTS, ...d.settings}}; save(); applySettings(); renderSettings(); toast('Daten importiert.');
+  } catch (err) { toast('Die Datei konnte nicht gelesen werden.'); }
+};
+$('#dReset').onclick = () => {
+  if (!confirm('Wirklich alle Statistiken und Einstellungen löschen?')) return;
+  data = freshData(); save(); applySettings(); renderSettings(); toast('Alle Daten gelöscht.');
+};
+
+/* ---------- Hilfe, Info, Download ---------- */
+$('#appVersion').textContent = APP_VERSION;
+$('#licenseText').textContent = `MIT-Lizenz (MIT License)
+
+Copyright (c) ${LICENSE_YEAR} ${LICENSE_HOLDER}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`;
+function downloadApp() {
+  const blob = new Blob([PRISTINE], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'tastomat-3000.html'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(location.protocol === 'file:' ? 'Kopie gespeichert – du nutzt bereits die Offline-Version.' : 'Offline-Datei wird heruntergeladen.');
+}
+document.addEventListener('click', e => {
+  const d = e.target.closest('[data-download]'); if (d) { e.preventDefault(); downloadApp(); return; }
+  const g = e.target.closest('[data-goto]'); if (g) { e.preventDefault(); show(g.dataset.goto); }
+});
+
+applySettings();
+show('home');
+})();
+</script>
+</body>
+</html>
