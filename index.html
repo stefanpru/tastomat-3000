@@ -153,6 +153,8 @@ body.training main{padding-top:10px;padding-bottom:10px}
 /* Abschrift */
 .copysrc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:12px 0;font:500 calc(var(--fs)*.75)/1.65 ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",Menlo,monospace;max-height:calc(var(--fs)*.75*1.65*7 + 30px);overflow-y:auto;white-space:pre-wrap;overflow-wrap:break-word}
 #crDiff{max-height:none}
+#cSrcBox{position:relative;z-index:0}
+#cSrcBox .cline{position:absolute;left:0;right:0;z-index:-1;background:var(--line);border-radius:4px;pointer-events:none;transition:top .15s}
 .copyin{display:block;width:100%;min-height:calc(var(--fs)*.75*1.65*6 + 24px);font:500 calc(var(--fs)*.75)/1.65 ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",Menlo,monospace;padding:12px 18px;border-radius:14px;background:var(--panel);border:2px solid var(--line)}
 .copyin:focus{outline:none;border-color:var(--accent)}
 .copyin[readonly]{opacity:.7}
@@ -1117,6 +1119,7 @@ function startCopy(text) {
        start:0, end:0, done:false, fixes:0, ops:null};
   cSrcBox.innerHTML = C.words.map((w, i) => `<span class="w" data-i="${i}">${esc(w)}</span>`).join(' ');
   C.spans = [...cSrcBox.querySelectorAll('.w')];
+  C.band = document.createElement('div'); C.band.className = 'cline'; C.band.hidden = true; cSrcBox.prepend(C.band);
   cInput.value = ''; cInput.readOnly = false;
   $('#cTimeL').textContent = C.limit ? 'Restzeit' : 'Zeit';
   $('#cTitle').textContent = C.live ? 'Abschrift mit Korrektur' : 'Abschrift – Prüfungsmodus';
@@ -1127,36 +1130,34 @@ function startCopy(text) {
 }
 const cElapsed = () => !C || !C.start ? 0 : ((C.end || performance.now()) - C.start) / 1000;
 
-// Wortweiser Vergleich (längste gemeinsame Teilfolge). Liefert Operationen in Originalreihenfolge.
+// Wortweiser Vergleich: kleinste Zahl an Wortfehlern (falsch, fehlend, überzählig je 1 Punkt).
+// Verglichen wird die Eingabe mit dem passenden Anfangsstück der Vorlage; der noch nicht getippte Rest kostet nichts.
+// So wird ein Tippfehler nie einem gleichlautenden Wort weiter hinten zugeordnet.
 function diffWords(orig, typed) {
   const n = orig.length, m = typed.length, W = m + 1;
-  const dp = new Uint16Array((n + 1) * (m + 1));
-  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
-    dp[i * W + j] = orig[i] === typed[j] ? dp[(i + 1) * W + j + 1] + 1 : Math.max(dp[(i + 1) * W + j], dp[i * W + j + 1]);
-  const raw = []; let i = 0, j = 0;
-  while (i < n && j < m) {
-    if (orig[i] === typed[j]) { raw.push({t:'ok', oi:i}); i++; j++; }
-    else if (dp[i * W + j + 1] >= dp[(i + 1) * W + j]) { raw.push({t:'ins', w:typed[j]}); j++; }
-    else { raw.push({t:'del', oi:i}); i++; }
-  }
-  while (j < m) raw.push({t:'ins', w:typed[j++]});
-  while (i < n) raw.push({t:'rest', oi:i++});
-  // Fehlende + überzählige Wörter zwischen zwei Treffern zu "falschen Wörtern" zusammenfassen.
-  const ops = [];
-  for (let k = 0; k < raw.length;) {
-    if (raw[k].t === 'ok') { ops.push(raw[k++]); continue; }
-    if (raw[k].t === 'rest') { ops.push(raw[k++]); continue; }
-    const dels = [], ins = [];
-    while (k < raw.length && raw[k].t !== 'ok' && raw[k].t !== 'rest') (raw[k].t === 'del' ? dels : ins).push(raw[k++]);
-    // Am Ende: Unfertiges wird den noch offenen Wörtern zugeordnet.
-    while (ins.length > dels.length && k < raw.length && raw[k].t === 'rest') dels.push({t:'del', oi:raw[k++].oi});
-    const p = Math.min(dels.length, ins.length);
-    for (let q = 0; q < Math.max(dels.length, ins.length); q++) {
-      if (q < p) ops.push({t:'sub', oi:dels[q].oi, w:ins[q].w});
-      else if (q < dels.length) ops.push({t:'miss', oi:dels[q].oi});
-      else ops.push({t:'ins', w:ins[q].w});
+  const D = new Uint16Array((n + 1) * W);
+  for (let j = 0; j <= m; j++) D[j] = j;
+  for (let i = 1; i <= n; i++) {
+    D[i * W] = i;
+    for (let j = 1; j <= m; j++) {
+      const sub = D[(i - 1) * W + j - 1] + (orig[i - 1] === typed[j - 1] ? 0 : 1);
+      const del = D[(i - 1) * W + j] + 1, ins = D[i * W + j - 1] + 1;
+      D[i * W + j] = sub < del ? (sub < ins ? sub : ins) : (del < ins ? del : ins);
     }
   }
+  // Bis wohin in der Vorlage reicht die Eingabe? (bei Gleichstand das längere Stück)
+  let bi = 0;
+  for (let i = 1; i <= n; i++) if (D[i * W + m] <= D[bi * W + m]) bi = i;
+  const ops = []; let i = bi, j = m;
+  while (i > 0 || j > 0) {
+    const c = D[i * W + j];
+    if (i > 0 && j > 0 && c === D[(i - 1) * W + j - 1] + (orig[i - 1] === typed[j - 1] ? 0 : 1)) {
+      ops.push(orig[i - 1] === typed[j - 1] ? {t:'ok', oi:i - 1} : {t:'sub', oi:i - 1, w:typed[j - 1]}); i--; j--;
+    } else if (i > 0 && c === D[(i - 1) * W + j] + 1) { ops.push({t:'miss', oi:i - 1}); i--; }
+    else { ops.push({t:'ins', w:typed[j - 1]}); j--; }
+  }
+  ops.reverse();
+  for (let k = bi; k < n; k++) ops.push({t:'rest', oi:k});
   return ops;
 }
 function copyEval() {
@@ -1190,11 +1191,8 @@ function copyUpdate() {
     else if (k === lastK && typing && o.t === 'sub' && C.words[o.oi].startsWith(o.w)) { curIdx = o.oi; partial = true; }
     else if (C.live) s.classList.add('err');
   });
-  if (curIdx >= 0) {
-    const s = C.spans[curIdx]; s.classList.add('cur');
-    const top = s.offsetTop - cSrcBox.offsetTop;
-    if (top < cSrcBox.scrollTop || top > cSrcBox.scrollTop + cSrcBox.clientHeight - 40) cSrcBox.scrollTop = Math.max(0, top - 40);
-  }
+  if (curIdx >= 0) C.spans[curIdx].classList.add('cur');
+  copyScroll();
   $('#cmTime').textContent = mmss(C.limit ? C.limit - secs : secs);
   const gross = normText(cInput.value).length;
   $('#cmCpm').textContent = secs > 2 ? Math.round((C.live ? ev.okChars : gross) / secs * 60) : 0;
@@ -1203,6 +1201,39 @@ function copyUpdate() {
   $('#cProg').style.width = (C.limit ? Math.min(1, secs / C.limit) : Math.min(1, gross / C.text.length)) * 100 + '%';
   return ev;
 }
+// Position in der Vorlage aus dem Wortabgleich: Welches Vorlagewort gehört zur Schreibmarke?
+function copyCaretWord() {
+  const n = C.words.length, map = []; let o = 0;
+  for (const op of C.ops || []) {
+    if (op.t === 'ok' || op.t === 'sub') { map.push(op.oi); o = op.oi + 1; }
+    else if (op.t === 'ins') map.push(Math.min(o, n - 1));
+    else if (op.t === 'miss') o = op.oi + 1;
+    else break; // 'rest': ab hier noch nicht getippt
+  }
+  const caret = cInput.selectionStart ?? cInput.value.length;
+  const before = cInput.value.slice(0, caret), tb = normText(before);
+  const cnt = tb ? tb.split(' ').length : 0;
+  const j = before.length > 0 && !/\s$/.test(before) ? cnt - 1 : cnt;
+  return Math.max(0, Math.min(n - 1, j < map.length ? map[j] : o));
+}
+// Vorlage ruhig mitscrollen: aktuelle Zeile als zweite Zeile, nur bei Zeilenwechsel.
+function copyScroll(force) {
+  if (!C || !C.spans || current !== 'copy') return;
+  const s = C.spans[copyCaretWord()]; if (!s) return;
+  const lh = parseFloat(getComputedStyle(cSrcBox).lineHeight) || s.offsetHeight;
+  const top = Math.round(s.offsetTop - (lh - s.offsetHeight) / 2);
+  if (C.band) { C.band.hidden = C.live || C.done; C.band.style.top = top + 'px'; C.band.style.height = lh + 'px'; }
+  if (performance.now() < (C.manualUntil || 0)) { C.lineTop = null; return; }
+  if (!force && top === C.lineTop) return;
+  C.lineTop = top;
+  cSrcBox.scrollTo({top:Math.max(0, top - lh), behavior:'smooth'});
+}
+// Selbst gescrollt? Dann pausiert die Automatik 4 Sekunden.
+['wheel', 'touchmove', 'pointerdown'].forEach(ev => cSrcBox.addEventListener(ev, () => { if (C) C.manualUntil = performance.now() + 4000; }, {passive:true}));
+// Schreibmarke bewegt (Klick, Pfeiltasten) → Vorlage folgt
+document.addEventListener('selectionchange', () => { if (C && !C.done && document.activeElement === cInput) copyScroll(); });
+['click', 'keyup'].forEach(ev => cInput.addEventListener(ev, () => { if (C && !C.done) copyScroll(); }));
+window.addEventListener('resize', () => { if (C && !C.done) copyScroll(true); });
 cInput.addEventListener('input', e => {
   if (!C || C.done) return;
   if (!C.start) C.start = performance.now();
